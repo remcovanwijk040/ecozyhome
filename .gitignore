@@ -1,0 +1,16 @@
+venv/
+*.pyc
+__pycache__/
+db.sqlite3
+.DS_Store
+node_modules/
+static/css/output.css
+# Exclude the temporary scrape/check files I created
+check_*.py
+clean_*.py
+fix_*.py
+parse.py
+extract_info.py
+find_urls*.py
+*_content.*
+debug.html

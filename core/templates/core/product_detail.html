@@ -1,0 +1,221 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ product.title }} — Ecozyhome{% endblock %}
+{% block meta_description %}{{ product.title }} koop je bij Ecozyhome. {% if product.brand %}Van het merk {{ product.brand }}.{% endif %} {% if product.retail_price %}Vanaf €{{ product.retail_price }} incl. BTW.{% endif %} Duurzaam en snel geleverd.{% endblock %}
+{% block og_title %}{{ product.title }} — Ecozyhome{% endblock %}
+{% block og_description %}{{ product.title }} — duurzaam en milieuvriendelijk. Bestel vandaag bij Ecozyhome.{% endblock %}
+
+{% block content %}
+
+<div class="bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        
+        <!-- Breadcrumbs -->
+        <nav aria-label="Breadcrumb" class="mb-8">
+            <ol role="list" class="flex items-center flex-wrap gap-1 text-sm text-gray-400">
+                <li>
+                    <a href="/" class="hover:text-eco-600 transition-colors">Home</a>
+                </li>
+                {% if product.category %}
+                {% if product.category.parent %}
+                <li class="flex items-center gap-1">
+                    <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    <a href="{% url 'core:category_detail' slug=product.category.parent.slug %}" class="hover:text-eco-600 transition-colors">{{ product.category.parent.name }}</a>
+                </li>
+                {% endif %}
+                <li class="flex items-center gap-1">
+                    <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    <a href="{% url 'core:category_detail' slug=product.category.slug %}" class="hover:text-eco-600 transition-colors">{{ product.category.name }}</a>
+                </li>
+                {% endif %}
+                <li class="flex items-center gap-1">
+                    <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    <span class="text-gray-600 font-medium">{{ product.title|truncatechars:40 }}</span>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+            <!-- ═══════ IMAGE GALLERY ═══════ -->
+            <div class="sticky top-24">
+                <!-- Main Image -->
+                <div class="aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100" id="main-image-container">
+                    {% if product.images.all %}
+                    <img id="main-product-image" src="{{ product.images.first.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-6">
+                    {% elif product.image_url %}
+                    <img id="main-product-image" src="{{ product.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-6">
+                    {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center text-eco-300 p-12">
+                        <svg class="h-20 w-20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span class="text-sm font-medium">Geen afbeelding beschikbaar</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Thumbnail Grid -->
+                {% if product.images.count > 1 %}
+                <div class="mt-4 grid grid-cols-5 gap-3">
+                    {% for img in product.images.all %}
+                    <button type="button" onclick="document.getElementById('main-product-image').src='{{ img.image_url }}'" class="aspect-square rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-100 hover:border-eco-400 focus:border-eco-500 focus:outline-none transition-all duration-200 cursor-pointer" id="thumb-{{ forloop.counter }}">
+                        <img src="{{ img.image_url }}" alt="Afbeelding {{ forloop.counter }}" class="w-full h-full object-contain p-2" loading="lazy">
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ═══════ PRODUCT INFO ═══════ -->
+            <div class="mt-10 lg:mt-0">
+                <!-- Brand -->
+                {% if product.brand %}
+                <p class="text-sm font-semibold text-eco-600 uppercase tracking-wider mb-2">{{ product.brand }}</p>
+                {% endif %}
+
+                <!-- Title -->
+                <h1 class="font-display text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight leading-tight">{{ product.title }}</h1>
+                
+                <!-- Price & Stock Row -->
+                <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-gray-100">
+                    <div>
+                        {% if product.retail_price %}
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl font-bold text-gray-900">&euro;{{ product.retail_price }}</span>
+                            <span class="text-sm text-gray-400 font-medium">incl. BTW</span>
+                        </div>
+                        {% else %}
+                        <span class="text-xl text-gray-500">Prijs op aanvraag</span>
+                        {% endif %}
+                    </div>
+                    {% if product.stock_status %}
+                    <span class="badge-eco bg-eco-100 text-eco-700 py-1.5 px-4">
+                        <span class="w-2 h-2 rounded-full bg-eco-500 animate-pulse"></span>
+                        {{ product.stock_status }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="mt-8" x-data="{ expanded: false }">
+                    <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Beschrijving</h2>
+                    <div 
+                        :class="expanded ? 'line-clamp-none' : 'line-clamp-[8]'" 
+                        class="text-gray-600 leading-relaxed prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-a:text-eco-600 prose-img:max-h-40 prose-img:w-auto prose-img:object-contain prose-img:rounded-xl prose-img:border prose-img:border-gray-100 prose-ul:list-disc prose-ul:pl-4 prose-ol:list-decimal prose-ol:pl-4 transition-all duration-300">
+                        {% if product.description %}
+                            {{ product.description|safe }}
+                        {% else %}
+                            <p>Dit duurzame product helpt je op een milieuvriendelijke manier energie te besparen. Bestel vandaag bij Ecozyhome en draag bij aan een groenere toekomst.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <button 
+                        @click="expanded = !expanded" 
+                        class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-eco-600 hover:text-eco-700 hover:underline transition-all group">
+                        <span x-text="expanded ? 'Lees minder' : 'Lees meer'">Lees meer</span>
+                        <svg :class="expanded ? 'rotate-180' : ''" class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                    </button>
+                </div>
+
+                <!-- Add to Cart Form (including options) -->
+                <div class="mt-8">
+                    <form hx-post="{% url 'core:cart_add' product.pk %}" hx-target="#cart-content" class="flex-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+
+                        <!-- Options / Variants -->
+                        {% if product.options %}
+                        <div class="mb-8 space-y-6">
+                            {% for option_name, option_values in product.options.items %}
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ option_name|title }}</h3>
+                                <div class="flex flex-wrap gap-3">
+                                    {% for val in option_values %}
+                                    <label class="relative cursor-pointer">
+                                        <input type="radio" name="opt-{{ option_name }}" value="{{ val }}" class="peer sr-only" {% if forloop.first %}checked{% endif %}>
+                                        <div class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 peer-checked:border-eco-500 peer-checked:bg-eco-50 peer-checked:text-eco-700 peer-focus:ring-2 peer-focus:ring-eco-500 peer-focus:ring-offset-2 transition-all shadow-sm">
+                                            {{ val }}
+                                        </div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="flex gap-3">
+                            <button type="submit" class="btn-primary w-full text-lg py-4 transition-all duration-300" id="add-to-cart-btn">
+                                <svg class="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                                In Winkelwagen
+                            </button>
+                            <button type="button" class="p-4 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all duration-200" id="wishlist-btn">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Specifications -->
+                {% if product.specifications %}
+                <div class="mt-10 pt-8 border-t border-gray-100">
+                    <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Specificaties</h2>
+                    <dl class="divide-y divide-gray-100">
+                        {% for spec_key, spec_val in product.specifications.items %}
+                        <div class="flex justify-between py-3 text-sm">
+                            <dt class="text-gray-500">{{ spec_key }}</dt>
+                            <dd class="text-gray-900 font-medium text-right max-w-[60%]">{{ spec_val }}</dd>
+                        </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+                {% endif %}
+
+                <!-- Extra details -->
+                <div class="mt-8 pt-8 border-t border-gray-100 space-y-3">
+                    {% if product.ean %}
+                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" /></svg>
+                        <span>EAN: {{ product.ean }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ RELATED PRODUCTS ═══════ -->
+{% if related_products %}
+<section class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="section-heading mb-8">Gerelateerde Producten</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for rp in related_products %}
+            <article class="card-product group">
+                <a href="{% url 'core:product_detail' pk=rp.pk %}">
+                    <div class="relative aspect-square overflow-hidden bg-gray-50">
+                        {% if rp.image_url %}
+                        <img src="{{ rp.image_url }}" alt="{{ rp.title }}" class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-eco-300">
+                            <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        {% if rp.brand %}
+                        <p class="text-xs font-semibold text-eco-600 uppercase tracking-wider mb-1">{{ rp.brand }}</p>
+                        {% endif %}
+                        <h3 class="text-sm font-medium text-gray-900 line-clamp-2">{{ rp.title }}</h3>
+                        {% if rp.retail_price %}
+                        <p class="mt-2 text-base font-bold text-gray-900">&euro;{{ rp.retail_price }}</p>
+                        {% endif %}
+                    </div>
+                </a>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends "core/base.html" %}
+
+{% block title %}Ecozyhome — Duurzame Producten voor een Groenere Toekomst{% endblock %}
+{% block meta_description %}Ontdek honderden duurzame producten bij Ecozyhome. Van energiebesparende artikelen tot natuurlijke verzorgingsproducten. Bespaar energie, bespaar geld, bespaar de planeet.{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HERO SECTION
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="relative overflow-hidden bg-gradient-to-br from-eco-900 via-eco-800 to-eco-950" id="hero">
+    <!-- Decorative blobs -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-eco-400/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 -left-32 w-80 h-80 bg-eco-300/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-sand-400/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 lg:py-40">
+        <div class="max-w-3xl">
+            <span class="badge-eco bg-eco-400/20 text-eco-300 mb-6">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.06 1.06l1.06 1.06z" /></svg>
+                Duurzaam Winkelen
+            </span>
+
+            <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight">
+                Maak van je huis een
+                <span class="text-gradient-eco bg-gradient-to-r from-eco-300 to-eco-400 bg-clip-text text-transparent">Ecozyhome</span>
+            </h1>
+
+            <p class="mt-6 text-lg sm:text-xl text-eco-100/80 leading-relaxed max-w-2xl">
+                Ontdek ons zorgvuldig samengestelde assortiment duurzame producten. 
+                Van energiebesparende oplossingen tot natuurlijke verzorging — bespaar geld 
+                én help de planeet.
+            </p>
+
+            <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                <a href="#categorieën" class="btn-primary text-lg px-8 py-4" id="hero-cta-shop">
+                    Bekijk Assortiment
+                    <svg class="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                </a>
+                <a href="#over-ons" class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white/90 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl hover:bg-white/20 transition-all duration-200" id="hero-cta-about">
+                    Over Ecozyhome
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 max-w-3xl">
+            <div class="text-center sm:text-left">
+                <div class="text-3xl sm:text-4xl font-display font-bold text-white">{{ total_products }}+</div>
+                <div class="text-sm text-eco-200/60 mt-1">Producten</div>
+            </div>
+            <div class="text-center sm:text-left">
+                <div class="text-3xl sm:text-4xl font-display font-bold text-white">{{ total_brands }}+</div>
+                <div class="text-sm text-eco-200/60 mt-1">Merken</div>
+            </div>
+            <div class="text-center sm:text-left">
+                <div class="text-3xl sm:text-4xl font-display font-bold text-white">100%</div>
+                <div class="text-sm text-eco-200/60 mt-1">Duurzaam</div>
+            </div>
+            <div class="text-center sm:text-left">
+                <div class="text-3xl sm:text-4xl font-display font-bold text-white">NL</div>
+                <div class="text-sm text-eco-200/60 mt-1">Verzending</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     USP BAR
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="bg-white border-b border-gray-100 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-eco-50 flex items-center justify-center text-eco-600 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold text-gray-900">Snelle Levering</div>
+                    <div class="text-xs text-gray-500">Binnen enkele dagen</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-eco-50 flex items-center justify-center text-eco-600 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold text-gray-900">Veilig Betalen</div>
+                    <div class="text-xs text-gray-500">iDEAL & meer</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-eco-50 flex items-center justify-center text-eco-600 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold text-gray-900">Eco-Gecertificeerd</div>
+                    <div class="text-xs text-gray-500">100% duurzaam</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-eco-50 flex items-center justify-center text-eco-600 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" /></svg>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold text-gray-900">30 Dagen Retour</div>
+                    <div class="text-xs text-gray-500">Niet goed? Geld terug</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CATEGORIES
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-20 bg-gray-50" id="categorieën">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="section-heading">Ontdek onze Categorieën</h2>
+            <p class="section-subheading mx-auto">Van energiebesparende oplossingen tot natuurlijke verzorgingsproducten — voor elke kamer in huis.</p>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for cat in parent_categories %}
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:shadow-eco-500/10 hover:border-eco-200 transition-all duration-300" id="cat-{{ cat.slug }}">
+                <a href="{% url 'core:category_detail' slug=cat.slug %}" class="group flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-eco-500 to-eco-600 flex items-center justify-center text-white text-xl shadow-lg shadow-eco-500/25 group-hover:scale-110 transition-transform duration-300">
+                            {{ cat.icon }}
+                        </div>
+                        <div>
+                            <h3 class="font-display text-lg font-semibold text-gray-900 group-hover:text-eco-700 transition-colors">{{ cat.name }}</h3>
+                            <p class="text-sm text-gray-500">{{ cat.product_count }} producten</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-eco-500 group-hover:translate-x-1 transition-all duration-300 mt-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                </a>
+                {% if cat.children.all %}
+                <div class="border-t border-gray-100 pt-3 space-y-1">
+                    {% for child in cat.children.all %}
+                    <a href="{% url 'core:category_detail' slug=child.slug %}" class="flex items-center justify-between py-1.5 px-2 -mx-2 rounded-lg text-sm text-gray-600 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200 group/sub">
+                        <span>{{ child.name }}</span>
+                        <span class="text-xs text-gray-400 group-hover/sub:text-eco-500">{{ child.products.count }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <div class="text-6xl mb-4">🌱</div>
+                <p class="text-gray-500 text-lg">Categorieën worden geladen... Het import script draait op de achtergrond.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FEATURED PRODUCTS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between mb-12">
+            <div>
+                <h2 class="section-heading">Uitgelichte Producten</h2>
+                <p class="section-subheading">Onze meest populaire duurzame keuzes.</p>
+            </div>
+            <a href="#categorieën" class="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-eco-600 hover:text-eco-700 transition-colors group">
+                Alle producten
+                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <article class="card-product group" id="product-card-{{ product.pk }}">
+                <a href="{% url 'core:product_detail' pk=product.pk %}" class="block">
+                    <div class="relative aspect-square overflow-hidden bg-gray-50">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-eco-300">
+                            <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        </div>
+                        {% endif %}
+
+                        {% if product.stock_status %}
+                        <div class="absolute top-3 left-3">
+                            <span class="badge-eco bg-eco-100 text-eco-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-eco-500"></span>
+                                Op voorraad
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="p-4">
+                        {% if product.brand %}
+                        <p class="text-xs font-semibold text-eco-600 uppercase tracking-wider mb-1">{{ product.brand }}</p>
+                        {% endif %}
+                        <h3 class="text-sm font-medium text-gray-900 group-hover:text-eco-700 transition-colors line-clamp-2 leading-snug">{{ product.title }}</h3>
+                        <div class="mt-3 flex items-baseline gap-2">
+                            {% if product.retail_price %}
+                            <span class="text-lg font-bold text-gray-900">&euro;{{ product.retail_price }}</span>
+                            <span class="text-xs text-gray-400">incl. BTW</span>
+                            {% else %}
+                            <span class="text-sm text-gray-500">Prijs op aanvraag</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </article>
+            {% empty %}
+            <div class="col-span-full text-center py-16">
+                <div class="text-6xl mb-4">📦</div>
+                <p class="text-gray-500 text-lg">Producten worden nu gesynchroniseerd...</p>
+                <p class="text-gray-400 text-sm mt-2">Ververs de pagina over een paar minuten.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ABOUT / WHY ECOZYHOME
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-20 bg-eco-50/50" id="over-ons">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+            <h2 class="section-heading">Waarom Ecozyhome?</h2>
+            <p class="section-subheading mx-auto">Wij geloven dat duurzaam leven niet moeilijk hoeft te zijn. Daarom selecteren wij alleen de beste eco-vriendelijke producten voor jou.</p>
+        </div>
+
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center group">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-eco-500 to-eco-600 flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-eco-500/25 group-hover:scale-110 transition-transform duration-300">
+                    🌍
+                </div>
+                <h3 class="font-display text-xl font-semibold text-gray-900 mt-6 mb-3">Eerlijk & Transparant</h3>
+                <p class="text-gray-500 leading-relaxed">Wij werken direct samen met duurzame merken en groothandels. Geen tussenpersonen, eerlijke prijzen.</p>
+            </div>
+            <div class="text-center group">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-eco-500 to-eco-600 flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-eco-500/25 group-hover:scale-110 transition-transform duration-300">
+                    ♻️
+                </div>
+                <h3 class="font-display text-xl font-semibold text-gray-900 mt-6 mb-3">Circulair & Duurzaam</h3>
+                <p class="text-gray-500 leading-relaxed">Elk product in ons assortiment draagt bij aan een circulaire economie. Minder afval, meer hergebruik.</p>
+            </div>
+            <div class="text-center group">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-eco-500 to-eco-600 flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-eco-500/25 group-hover:scale-110 transition-transform duration-300">
+                    💚
+                </div>
+                <h3 class="font-display text-xl font-semibold text-gray-900 mt-6 mb-3">Gemakkelijk & Snel</h3>
+                <p class="text-gray-500 leading-relaxed">Duurzaam winkelen moet makkelijk zijn. Bestel vandaag, ontvang morgen. Zonder gedoe.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CTA BANNER
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-eco-700 via-eco-600 to-eco-500 px-8 py-16 sm:px-16 sm:py-20">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                <div class="absolute -top-10 -right-10 w-60 h-60 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-60 h-60 bg-eco-400/20 rounded-full blur-2xl"></div>
+            </div>
+            <div class="relative text-center max-w-2xl mx-auto">
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mb-4">Klaar voor een duurzamere levensstijl?</h2>
+                <p class="text-eco-100/90 text-lg mb-8">Ontdek vandaag nog ons complete assortiment en bespaar op energie, water en meer.</p>
+                <a href="#categorieën" class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-eco-700 bg-white rounded-xl hover:bg-eco-50 transition-all duration-200 shadow-xl shadow-black/10 hover:-translate-y-0.5" id="cta-shop">
+                    Start met Winkelen
+                    <svg class="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

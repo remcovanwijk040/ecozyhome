@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ecozyhome - Duurzame Producten voor een Groenere Toekomst{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Ontdek ons assortiment duurzame en milieuvriendelijke producten. Van energiebesparing tot natuurlijke verzorging — maak van je huis een Ecozyhome.{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{% block canonical %}https://ecozyhome.nl{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Ecozyhome - Duurzame Producten{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Ontdek ons assortiment duurzame en milieuvriendelijke producten.{% endblock %}">
+    <meta property="og:locale" content="nl_NL">
+    <meta property="og:site_name" content="Ecozyhome">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+
+    <!-- Tailwind CSS output -->
+    {% load static %}
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+    <!-- Announcement Banner -->
+    <div class="bg-eco-800 text-white text-center py-2.5 text-sm font-medium tracking-wide">
+        <div class="max-w-7xl mx-auto px-4 flex items-center justify-center gap-2">
+            <span>🌱</span>
+            <span>Minimale bestelwaarde €40 | 100% Duurzaam & Milieubewust</span>
+            <span>🌱</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="main-nav" class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 lg:h-18">
+
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center gap-2 group" id="nav-logo">
+                        <span class="text-3xl transition-transform group-hover:rotate-12 duration-300">🌿</span>
+                        <span class="text-2xl font-display font-bold text-gradient-eco">Ecozyhome</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden lg:flex lg:items-center lg:gap-1">
+                    <a href="/" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-home">Home</a>
+                    <a href="#categorieën" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-shop">Winkel</a>
+                    <a href="#over-ons" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-about">Over Ons</a>
+                    <a href="#contact" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-contact">Contact</a>
+                </div>
+
+                <!-- Right side actions -->
+                <div class="flex items-center gap-3">
+                    <button type="button" class="relative p-2.5 rounded-xl text-gray-500 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-search-btn">
+                        <span class="sr-only">Zoeken</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </button>
+                    <button type="button" class="relative p-2.5 rounded-xl text-gray-500 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-cart-btn" onclick="openCart()">
+                        <span class="sr-only">Winkelwagen</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                        </svg>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-eco-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+                            {{ cart_total_items|default:"0" }}
+                        </span>
+                    </button>
+
+                    <!-- Mobile menu button -->
+                    <button type="button" class="lg:hidden p-2.5 rounded-xl text-gray-500 hover:text-eco-700 hover:bg-eco-50 transition-all" id="mobile-menu-btn" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                        <span class="sr-only">Menu</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="hidden lg:hidden border-t border-gray-100 bg-white" id="mobile-menu">
+            <div class="px-4 py-4 space-y-1">
+                <a href="/" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Home</a>
+                <a href="#categorieën" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Winkel</a>
+                <a href="#over-ons" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Over Ons</a>
+                <a href="#contact" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-eco-950 text-white mt-20" id="contact">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Main Footer -->
+            <div class="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <!-- Brand -->
+                <div class="lg:col-span-1">
+                    <a href="/" class="flex items-center gap-2 mb-4">
+                        <span class="text-3xl">🌿</span>
+                        <span class="text-2xl font-display font-bold text-white">Ecozyhome</span>
+                    </a>
+                    <p class="text-eco-200/70 text-sm leading-relaxed">
+                        Duurzame producten voor een groenere toekomst. Samen maken we het verschil, stap voor stap.
+                    </p>
+                </div>
+
+                <!-- Shop -->
+                <div>
+                    <h3 class="font-display font-semibold text-white mb-4 text-sm uppercase tracking-wider">Winkel</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Energie & Water</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Mooi & Gezond</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Wonen & Huishouden</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Tuin & Dier</a></li>
+                    </ul>
+                </div>
+
+                <!-- Service -->
+                <div>
+                    <h3 class="font-display font-semibold text-white mb-4 text-sm uppercase tracking-wider">Klantenservice</h3>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'core:info_bestel' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Verzendbeleid & Bestelinformatie</a></li>
+                        <li><a href="{% url 'core:info_retour' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Retourneren</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Veelgestelde Vragen</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h3 class="font-display font-semibold text-white mb-4 text-sm uppercase tracking-wider">Over Ons</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Ons Verhaal</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Duurzaamheid</a></li>
+                        <li><a href="{% url 'core:info_privacy' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Privacybeleid</a></li>
+                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Algemene Voorwaarden</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+        <p>&copy; 2026 Ecozyhome. Alle rechten voorbehouden.</p>
+        <div class="flex items-center gap-4">
+            <a href="#" class="hover:text-eco-600 transition-colors">Algemene Voorwaarden</a>
+            <a href="#" class="hover:text-eco-600 transition-colors">Privacybeleid</a>
+            <a href="#" class="hover:text-eco-600 transition-colors">Retourneren</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Cart Slide-over -->
+<div id="cart-slideover" class="fixed inset-0 z-[100] hidden">
+    <!-- Backdrop -->
+    <div id="cart-backdrop" class="absolute inset-0 bg-gray-500/75 opacity-0 transition-opacity duration-500 ease-in-out" aria-hidden="true" onclick="closeCart()"></div>
+    
+    <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <!-- Panel -->
+        <div id="cart-panel" class="pointer-events-auto w-screen max-w-md translate-x-full transition-transform duration-500 ease-in-out">
+            <div class="flex h-full flex-col bg-white shadow-xl">
+                <div class="flex items-center justify-between px-4 py-6 sm:px-6 border-b border-gray-100">
+                    <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">Winkelwagen</h2>
+                    <div class="ml-3 flex h-7 items-center">
+                        <button type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500" onclick="closeCart()">
+                            <span class="sr-only">Sluiten</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="cart-content" class="flex flex-1 flex-col overflow-y-auto">
+                    {% include "core/partials/cart_slideover_content.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCart() {
+        const slideover = document.getElementById('cart-slideover');
+        const backdrop = document.getElementById('cart-backdrop');
+        const panel = document.getElementById('cart-panel');
+        
+        slideover.classList.remove('hidden');
+        // Small delay to allow display:block to apply before animating
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
+            panel.classList.remove('translate-x-full');
+            panel.classList.add('translate-x-0');
+        }, 10);
+    }
+
+    function closeCart() {
+        const slideover = document.getElementById('cart-slideover');
+        const backdrop = document.getElementById('cart-backdrop');
+        const panel = document.getElementById('cart-panel');
+        
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0');
+        panel.classList.remove('translate-x-0');
+        panel.classList.add('translate-x-full');
+        
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+            slideover.classList.add('hidden');
+        }, 500);
+    }
+
+    // HTMX specific handling
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'cart-content') {
+            openCart();
+            // Optional: update badge or reload
+        }
+    });
+</script>
+</body>
+</html>
