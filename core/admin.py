@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, ProductImage, Order, OrderItem
+from .models import Category, Product, ProductImage, Order, OrderItem, NewsletterSubscriber
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -30,3 +30,11 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('email', 'full_name', 'stripe_checkout_id')
     readonly_fields = ('stripe_checkout_id', 'total_amount')
     inlines = [OrderItemInline]
+
+
+@admin.register(NewsletterSubscriber)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ('email', 'created_at')
+    search_fields = ('email',)
+    readonly_fields = ('created_at',)
+    list_filter = ('created_at',)

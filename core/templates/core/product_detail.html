@@ -4,59 +4,163 @@
 {% block meta_description %}{{ product.title }} koop je bij Ecozyhome. {% if product.brand %}Van het merk {{ product.brand }}.{% endif %} {% if product.retail_price %}Vanaf €{{ product.retail_price }} incl. BTW.{% endif %} Duurzaam en snel geleverd.{% endblock %}
 {% block og_title %}{{ product.title }} — Ecozyhome{% endblock %}
 {% block og_description %}{{ product.title }} — duurzaam en milieuvriendelijk. Bestel vandaag bij Ecozyhome.{% endblock %}
+{% block canonical %}https://ecozyhome.nl/product/{{ product.pk }}/{% endblock %}
+
+{% block extra_head %}
+<!-- Open Graph Image -->
+{% if product.image_url %}
+<meta property="og:image" content="{{ product.image_url }}">
+{% endif %}
+
+<!-- JSON-LD Product Structured Data (Google Rich Results) -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.title|escapejs }}",
+    "description": "{% if product.description %}{{ product.description|striptags|truncatewords:50|escapejs }}{% else %}Duurzaam product bij Ecozyhome{% endif %}",
+    "url": "https://ecozyhome.nl/product/{{ product.pk }}/",
+    {% if product.image_url %}"image": "{{ product.image_url }}",{% endif %}
+    {% if product.ean %}"gtin13": "{{ product.ean|escapejs }}",{% endif %}
+    {% if product.brand %}"brand": {
+        "@type": "Brand",
+        "name": "{{ product.brand|escapejs }}"
+    },{% endif %}
+    {% if product.category %}"category": "{{ product.category.name|escapejs }}",{% endif %}
+    {% if product.retail_price %}"offers": {
+        "@type": "Offer",
+        "url": "https://ecozyhome.nl/product/{{ product.pk }}/",
+        "priceCurrency": "EUR",
+        "price": "{{ product.retail_price }}",
+        "priceValidUntil": "{{ price_valid_until|date:'Y-m-d' }}",
+        "availability": "{% if product.stock_status %}https://schema.org/InStock{% else %}https://schema.org/InStock{% endif %}",
+        "seller": {
+            "@type": "Organization",
+            "name": "Ecozyhome"
+        }
+    }{% endif %}
+}
+</script>
+
+<!-- BreadcrumbList Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://ecozyhome.nl/"
+        }{% if product.category %}{% if product.category.parent %},
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ product.category.parent.name|escapejs }}",
+            "item": "https://ecozyhome.nl/categorie/{{ product.category.parent.slug }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ product.category.name|escapejs }}",
+            "item": "https://ecozyhome.nl/categorie/{{ product.category.slug }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "{{ product.title|escapejs }}"
+        }{% else %},
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ product.category.name|escapejs }}",
+            "item": "https://ecozyhome.nl/categorie/{{ product.category.slug }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ product.title|escapejs }}"
+        }{% endif %}{% endif %}
+    ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 
+<!-- Image Zoom Overlay -->
+<div id="zoom-overlay" class="zoom-overlay" onclick="this.classList.remove('active')">
+    <img id="zoom-image" src="" alt="Ingezoomd product">
+    <button type="button" class="absolute top-6 right-6 text-white/80 hover:text-white transition-colors" onclick="document.getElementById('zoom-overlay').classList.remove('active')">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+    </button>
+</div>
+
 <div class="bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+
         <!-- Breadcrumbs -->
-        <nav aria-label="Breadcrumb" class="mb-8">
-            <ol role="list" class="flex items-center flex-wrap gap-1 text-sm text-gray-400">
-                <li>
-                    <a href="/" class="hover:text-eco-600 transition-colors">Home</a>
-                </li>
+        <nav aria-label="Breadcrumb" class="mb-6">
+            <ol role="list" class="flex items-center flex-wrap gap-1.5 text-sm text-gray-400">
+                <li><a href="/" class="hover:text-eco-600 transition-colors">Home</a></li>
                 {% if product.category %}
                 {% if product.category.parent %}
-                <li class="flex items-center gap-1">
-                    <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                <li class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     <a href="{% url 'core:category_detail' slug=product.category.parent.slug %}" class="hover:text-eco-600 transition-colors">{{ product.category.parent.name }}</a>
                 </li>
                 {% endif %}
-                <li class="flex items-center gap-1">
-                    <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                <li class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     <a href="{% url 'core:category_detail' slug=product.category.slug %}" class="hover:text-eco-600 transition-colors">{{ product.category.name }}</a>
                 </li>
                 {% endif %}
-                <li class="flex items-center gap-1">
-                    <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                <li class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     <span class="text-gray-600 font-medium">{{ product.title|truncatechars:40 }}</span>
                 </li>
             </ol>
         </nav>
 
-        <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-start">
+        <!-- Admin-only: link to original source -->
+        {% if user.is_staff and product.original_url %}
+        <div class="mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-sm">
+            <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+            <span class="text-amber-700 font-medium">Admin:</span>
+            <a href="{{ product.original_url }}" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-900 underline truncate">{{ product.original_url }}</a>
+        </div>
+        {% endif %}
+
+        <div class="lg:grid lg:grid-cols-2 lg:gap-x-14 lg:items-start">
             <!-- ═══════ IMAGE GALLERY ═══════ -->
             <div class="sticky top-24">
                 <!-- Main Image -->
-                <div class="aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100" id="main-image-container">
-                    {% if product.images.all %}
-                    <img id="main-product-image" src="{{ product.images.first.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-6">
+                <div class="aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 cursor-zoom-in group relative" id="main-image-container" onclick="openZoom()">
+                    {% if initial_variant.image %}
+                    <img id="main-product-image" src="{{ initial_variant.image }}" alt="{{ product.title }} - {{ initial_variant.value }}" class="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105">
+                    {% elif product.images.all %}
+                    <img id="main-product-image" src="{{ product.images.first.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105">
                     {% elif product.image_url %}
-                    <img id="main-product-image" src="{{ product.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-6">
+                    <img id="main-product-image" src="{{ product.image_url }}" alt="{{ product.title }}" class="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105">
                     {% else %}
-                    <div class="w-full h-full flex flex-col items-center justify-center text-eco-300 p-12">
+                    <div class="w-full h-full flex flex-col items-center justify-center text-eco-300 p-12" onclick="event.stopPropagation()" style="cursor:default">
                         <svg class="h-20 w-20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         <span class="text-sm font-medium">Geen afbeelding beschikbaar</span>
                     </div>
                     {% endif %}
+                    <!-- Zoom hint -->
+                    <div class="absolute bottom-3 right-3 bg-white/80 backdrop-blur-sm rounded-lg px-2.5 py-1.5 text-xs text-gray-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" /></svg>
+                        Klik om te vergroten
+                    </div>
                 </div>
 
                 <!-- Thumbnail Grid -->
                 {% if product.images.count > 1 %}
-                <div class="mt-4 grid grid-cols-5 gap-3">
+                <div class="mt-3 grid grid-cols-5 gap-2">
                     {% for img in product.images.all %}
-                    <button type="button" onclick="document.getElementById('main-product-image').src='{{ img.image_url }}'" class="aspect-square rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-100 hover:border-eco-400 focus:border-eco-500 focus:outline-none transition-all duration-200 cursor-pointer" id="thumb-{{ forloop.counter }}">
+                    <button type="button" onclick="selectThumb(this, '{{ img.image_url }}')" class="aspect-square rounded-xl overflow-hidden bg-gray-50 border-2 transition-all duration-200 cursor-pointer {% if forloop.first %}border-eco-500 ring-2 ring-eco-100{% else %}border-gray-100 hover:border-eco-400{% endif %}" id="thumb-{{ forloop.counter }}">
                         <img src="{{ img.image_url }}" alt="Afbeelding {{ forloop.counter }}" class="w-full h-full object-contain p-2" loading="lazy">
                     </button>
                     {% endfor %}
@@ -65,130 +169,236 @@
             </div>
 
             <!-- ═══════ PRODUCT INFO ═══════ -->
-            <div class="mt-10 lg:mt-0">
-                <!-- Brand -->
+            <div class="mt-8 lg:mt-0">
                 {% if product.brand %}
-                <p class="text-sm font-semibold text-eco-600 uppercase tracking-wider mb-2">{{ product.brand }}</p>
+                <p class="text-xs font-bold text-eco-600 uppercase tracking-widest mb-2">{{ product.brand }}</p>
                 {% endif %}
 
-                <!-- Title -->
                 <h1 class="font-display text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight leading-tight">{{ product.title }}</h1>
-                
-                <!-- Price & Stock Row -->
-                <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-gray-100">
-                    <div>
-                        {% if product.retail_price %}
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-3xl font-bold text-gray-900">&euro;{{ product.retail_price }}</span>
-                            <span class="text-sm text-gray-400 font-medium">incl. BTW</span>
-                        </div>
-                        {% else %}
-                        <span class="text-xl text-gray-500">Prijs op aanvraag</span>
-                        {% endif %}
+
+                <!-- Price & Stock -->
+                <div class="mt-5 flex flex-wrap items-center gap-4 pb-5 border-b border-gray-100">
+                    {% if product.retail_price %}
+                    <div class="flex items-baseline gap-2">
+                        <span id="product-price-main" class="text-3xl font-bold text-gray-900">{% if initial_variant.price %}&euro;{{ initial_variant.price }}{% else %}&euro;{{ product.retail_price }}{% endif %}</span>
+                        <span class="text-sm text-gray-400 font-medium">incl. BTW</span>
                     </div>
+                    {% else %}
+                    <span class="text-xl text-gray-500">Prijs op aanvraag</span>
+                    {% endif %}
                     {% if product.stock_status %}
-                    <span class="badge-eco bg-eco-100 text-eco-700 py-1.5 px-4">
-                        <span class="w-2 h-2 rounded-full bg-eco-500 animate-pulse"></span>
+                    <span class="badge-eco py-1.5 px-4 {% if 'niet' in product.stock_status|lower or 'uitverkocht' in product.stock_status|lower %}bg-red-50 text-red-700{% else %}bg-eco-100 text-eco-700{% endif %}">
+                        <span class="w-2 h-2 rounded-full {% if 'niet' in product.stock_status|lower or 'uitverkocht' in product.stock_status|lower %}bg-red-500{% else %}bg-eco-500 animate-pulse{% endif %}"></span>
                         {{ product.stock_status }}
                     </span>
                     {% endif %}
                 </div>
 
-                <!-- Description -->
-                <div class="mt-8" x-data="{ expanded: false }">
-                    <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Beschrijving</h2>
-                    <div 
-                        :class="expanded ? 'line-clamp-none' : 'line-clamp-[8]'" 
-                        class="text-gray-600 leading-relaxed prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-a:text-eco-600 prose-img:max-h-40 prose-img:w-auto prose-img:object-contain prose-img:rounded-xl prose-img:border prose-img:border-gray-100 prose-ul:list-disc prose-ul:pl-4 prose-ol:list-decimal prose-ol:pl-4 transition-all duration-300">
-                        {% if product.description %}
-                            {{ product.description|safe }}
-                        {% else %}
-                            <p>Dit duurzame product helpt je op een milieuvriendelijke manier energie te besparen. Bestel vandaag bij Ecozyhome en draag bij aan een groenere toekomst.</p>
-                        {% endif %}
-                    </div>
-                    
-                    <button 
-                        @click="expanded = !expanded" 
-                        class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-eco-600 hover:text-eco-700 hover:underline transition-all group">
-                        <span x-text="expanded ? 'Lees minder' : 'Lees meer'">Lees meer</span>
-                        <svg :class="expanded ? 'rotate-180' : ''" class="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-                    </button>
-                </div>
-
-                <!-- Add to Cart Form (including options) -->
-                <div class="mt-8">
+                <!-- Add to Cart Form -->
+                <div class="mt-6" id="main-cta-section">
                     <form hx-post="{% url 'core:cart_add' product.pk %}" hx-target="#cart-content" class="flex-1">
                         {% csrf_token %}
-                        <input type="hidden" name="quantity" value="1">
 
-                        <!-- Options / Variants -->
-                        {% if product.options %}
-                        <div class="mb-8 space-y-6">
-                            {% for option_name, option_values in product.options.items %}
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ option_name|title }}</h3>
-                                <div class="flex flex-wrap gap-3">
-                                    {% for val in option_values %}
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio" name="opt-{{ option_name }}" value="{{ val }}" class="peer sr-only" {% if forloop.first %}checked{% endif %}>
-                                        <div class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 peer-checked:border-eco-500 peer-checked:bg-eco-50 peer-checked:text-eco-700 peer-focus:ring-2 peer-focus:ring-eco-500 peer-focus:ring-offset-2 transition-all shadow-sm">
-                                            {{ val }}
+                        <!-- Variants -->
+                        {% if variant_groups %}
+                        <div class="mb-6 space-y-5 rounded-2xl border border-gray-100 bg-gray-50/70 p-4 sm:p-5">
+                            {% for option_group in variant_groups %}
+                            <fieldset>
+                                <legend class="text-base font-semibold text-gray-900">Kies je {{ option_group.name|lower }}</legend>
+                                <p class="mt-1 mb-3 text-sm text-gray-500">Selecteer de variant die je wilt bestellen.</p>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    {% for variant in option_group.values %}
+                                    <label for="variant-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" class="relative block cursor-pointer">
+                                        <input id="variant-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" type="radio" name="opt-{{ option_group.name }}" value="{{ variant.value }}" data-variant-key="{{ variant.key }}" class="peer sr-only js-variant-option" {% if variant.key == initial_variant.key %}checked{% endif %}>
+                                        <div class="min-h-20 rounded-xl border border-gray-200 bg-white px-4 py-3 pr-12 shadow-sm transition-all hover:border-eco-300 hover:bg-eco-50/40 peer-checked:border-eco-600 peer-checked:bg-white peer-checked:ring-2 peer-checked:ring-eco-100 peer-focus:ring-2 peer-focus:ring-eco-500 peer-focus:ring-offset-2">
+                                            <span class="min-w-0 flex-1">
+                                                <span class="block text-xs font-semibold uppercase tracking-wide text-gray-400">Optie {{ forloop.counter }}</span>
+                                                <span class="mt-0.5 block break-words text-base font-semibold text-gray-900">{{ variant.value }}</span>
+                                                {% if variant.price %}
+                                                <span class="mt-1 block text-sm font-semibold text-eco-700">&euro;{{ variant.price }}</span>
+                                                {% endif %}
+                                            </span>
                                         </div>
+                                        <span class="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border-2 border-gray-300 bg-white transition-colors peer-checked:hidden"></span>
+                                        <span class="absolute right-4 top-1/2 hidden h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-eco-600 text-white peer-checked:flex">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                        </span>
+                                        <span class="absolute right-4 top-3 hidden rounded-full bg-eco-100 px-2 py-0.5 text-[11px] font-semibold text-eco-700 peer-checked:block sm:top-2">Gekozen</span>
                                     </label>
                                     {% endfor %}
                                 </div>
-                            </div>
+                            </fieldset>
                             {% endfor %}
                         </div>
                         {% endif %}
 
-                        <div class="flex gap-3">
-                            <button type="submit" class="btn-primary w-full text-lg py-4 transition-all duration-300" id="add-to-cart-btn">
+                        <!-- Quantity + CTA -->
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex items-center gap-1 rounded-xl border border-gray-200 bg-white p-1">
+                                <button type="button" class="quantity-btn" onclick="changeQty(-1)">−</button>
+                                <input type="number" name="quantity" id="qty-input" value="1" min="1" max="99" class="quantity-value" readonly>
+                                <button type="button" class="quantity-btn" onclick="changeQty(1)">+</button>
+                            </div>
+                            <button type="submit" class="btn-primary flex-1 text-lg py-4" id="add-to-cart-btn">
                                 <svg class="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
                                 In Winkelwagen
-                            </button>
-                            <button type="button" class="p-4 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all duration-200" id="wishlist-btn">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>
+                                {% if initial_variant.price or product.retail_price %}
+                                <span id="add-to-cart-price" class="ml-1 text-base font-semibold text-eco-100 hidden sm:inline">— <span id="checkout-price">{% if initial_variant.price %}&euro;{{ initial_variant.price }}{% else %}&euro;{{ product.retail_price }}{% endif %}</span></span>
+                                {% endif %}
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Specifications -->
-                {% if product.specifications %}
-                <div class="mt-10 pt-8 border-t border-gray-100">
-                    <h2 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Specificaties</h2>
-                    <dl class="divide-y divide-gray-100">
-                        {% for spec_key, spec_val in product.specifications.items %}
-                        <div class="flex justify-between py-3 text-sm">
-                            <dt class="text-gray-500">{{ spec_key }}</dt>
-                            <dd class="text-gray-900 font-medium text-right max-w-[60%]">{{ spec_val }}</dd>
-                        </div>
-                        {% endfor %}
-                    </dl>
+                <!-- USP Bar -->
+                <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                    <div class="usp-item">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                        <span class="font-medium">Gratis verzending v.a. €40</span>
+                    </div>
+                    <div class="usp-item">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>
+                        <span class="font-medium">14 dagen retourrecht</span>
+                    </div>
+                    <div class="usp-item">
+                        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+                        <span class="font-medium">Veilig betalen</span>
+                    </div>
+                </div>
+
+                <!-- Payment badges -->
+                <div class="mt-4 flex items-center gap-3 px-1">
+                    <span class="text-xs text-gray-400 font-medium">Betaal met</span>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-[#CC2E74]">iDEAL</span>
+                        <span class="inline-flex items-center px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-[#1A1F71]">VISA</span>
+                        <span class="inline-flex items-center px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-[#EB001B]">MC</span>
+                    </div>
+                </div>
+
+                <!-- EAN -->
+                {% if product.ean %}
+                <div class="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" /></svg>
+                    <span>EAN: {{ product.ean }}</span>
                 </div>
                 {% endif %}
-
-                <!-- Extra details -->
-                <div class="mt-8 pt-8 border-t border-gray-100 space-y-3">
-                    {% if product.ean %}
-                    <div class="flex items-center gap-2 text-sm text-gray-400">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" /></svg>
-                        <span>EAN: {{ product.ean }}</span>
-                    </div>
-                    {% endif %}
-                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ═══════ TABBED CONTENT ═══════ -->
+<section class="bg-white border-t border-gray-100" x-data="{ tab: 'beschrijving' }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Tab Headers -->
+        <div class="flex border-b border-gray-200 gap-0 overflow-x-auto">
+            <button @click="tab = 'beschrijving'" class="product-tab whitespace-nowrap" :class="tab === 'beschrijving' && 'product-tab-active'">Beschrijving</button>
+            {% if visible_specs %}
+            <button @click="tab = 'specs'" class="product-tab whitespace-nowrap" :class="tab === 'specs' && 'product-tab-active'">Specificaties</button>
+            {% endif %}
+            {% if product_info_sections or product_documents or product_videos %}
+            <button @click="tab = 'extra'" class="product-tab whitespace-nowrap" :class="tab === 'extra' && 'product-tab-active'">Extra Informatie</button>
+            {% endif %}
+        </div>
+
+        <!-- Tab: Beschrijving -->
+        <div x-show="tab === 'beschrijving'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="pt-8">
+            <div class="text-gray-600 leading-relaxed prose prose-sm sm:prose-base max-w-none prose-headings:text-gray-900 prose-a:text-eco-600 prose-img:max-h-48 prose-img:w-auto prose-img:object-contain prose-img:rounded-xl prose-img:border prose-img:border-gray-100 prose-ul:list-disc prose-ul:pl-4 prose-ol:list-decimal prose-ol:pl-4">
+                {% if product.description %}
+                    {{ product.description|safe }}
+                {% else %}
+                    <p>Dit duurzame product helpt je op een milieuvriendelijke manier energie te besparen. Bestel vandaag bij Ecozyhome en draag bij aan een groenere toekomst.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Tab: Specificaties -->
+        {% if visible_specs %}
+        <div x-show="tab === 'specs'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="pt-8">
+            <dl class="divide-y divide-gray-100 rounded-2xl border border-gray-100 overflow-hidden">
+                {% for spec_key, spec_val in visible_specs.items %}
+                <div class="flex justify-between px-5 py-3.5 text-sm {% if forloop.counter|divisibleby:2 %}bg-gray-50/50{% else %}bg-white{% endif %}">
+                    <dt class="text-gray-500">{{ spec_key }}</dt>
+                    <dd class="text-gray-900 font-medium text-right max-w-[60%]">{{ spec_val }}</dd>
+                </div>
+                {% endfor %}
+            </dl>
+        </div>
+        {% endif %}
+
+        <!-- Tab: Extra -->
+        {% if product_info_sections or product_documents or product_videos %}
+        <div x-show="tab === 'extra'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="pt-8 space-y-4">
+            {% for section in product_info_sections %}
+            <details class="group rounded-xl border border-gray-100 bg-white overflow-hidden">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-gray-900">
+                    {{ section.title }}
+                    <svg class="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+                </summary>
+                <div class="px-5 pb-4 text-sm leading-6 text-gray-600">
+                    <ul class="space-y-1">{% for line in section.lines %}<li>{{ line }}</li>{% endfor %}</ul>
+                </div>
+            </details>
+            {% endfor %}
+            {% if product_documents %}
+            <div class="rounded-xl border border-gray-100 bg-white p-5">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">📄 Handleidingen</h3>
+                <div class="space-y-2">
+                    {% for document in product_documents %}
+                    <a href="{{ document.url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-semibold text-eco-700 hover:text-eco-800 hover:underline text-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        {{ document.title }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% if product_videos %}
+            <div class="rounded-xl border border-gray-100 bg-white p-5">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">🎬 Video's</h3>
+                <div class="space-y-2">
+                    {% for video in product_videos %}
+                    <a href="{{ video }}" target="_blank" rel="noopener" class="block font-semibold text-eco-700 hover:text-eco-800 hover:underline text-sm">Bekijk video {{ forloop.counter }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Social Sharing -->
+        <div class="mt-10 pt-8 border-t border-gray-100 flex items-center gap-4">
+            <span class="text-sm font-medium text-gray-500">Deel dit product</span>
+            <div class="flex gap-2">
+                <a href="https://wa.me/?text={{ product.title|urlencode }}%20https://ecozyhome.nl/product/{{ product.pk }}/" target="_blank" rel="noopener" class="share-btn hover:text-green-600 hover:border-green-200 hover:bg-green-50" title="Deel via WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://ecozyhome.nl/product/{{ product.pk }}/" target="_blank" rel="noopener" class="share-btn hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50" title="Deel op Facebook">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </a>
+                <button type="button" class="share-btn hover:text-eco-700 hover:border-eco-200 hover:bg-eco-50" title="Kopieer link" onclick="navigator.clipboard.writeText(window.location.href);this.innerHTML='<svg class=\'w-4.5 h-4.5 text-eco-600\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'2\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'m4.5 12.75 6 6 9-13.5\' /></svg>';setTimeout(()=>{this.innerHTML='<svg class=\'w-4.5 h-4.5\' fill=\'none\' viewBox=\'0 0 24 24\' stroke-width=\'2\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244\' /></svg>'},2000)">
+                    <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ═══════ RELATED PRODUCTS ═══════ -->
 {% if related_products %}
 <section class="bg-gray-50 py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="section-heading mb-8">Gerelateerde Producten</h2>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="section-heading">Gerelateerde Producten</h2>
+            {% if product.category %}
+            <a href="{% url 'core:category_detail' slug=product.category.slug %}" class="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-eco-600 hover:text-eco-700 transition-colors">
+                Bekijk alles
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </a>
+            {% endif %}
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {% for rp in related_products %}
             <article class="card-product group">
                 <a href="{% url 'core:product_detail' pk=rp.pk %}">
@@ -218,4 +428,104 @@
 </section>
 {% endif %}
 
+<!-- ═══════ STICKY MOBILE CTA ═══════ -->
+<div class="sticky-cta" id="sticky-cta">
+    <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+            <p class="text-xs text-gray-500 truncate">{{ product.title|truncatechars:30 }}</p>
+            {% if product.retail_price %}
+            <p class="text-lg font-bold text-gray-900" id="sticky-price">{% if initial_variant.price %}&euro;{{ initial_variant.price }}{% else %}&euro;{{ product.retail_price }}{% endif %}</p>
+            {% endif %}
+        </div>
+        <button type="button" class="btn-primary py-3 px-6 text-sm" onclick="document.getElementById('add-to-cart-btn').click()">
+            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+            In Winkelwagen
+        </button>
+    </div>
+</div>
+
+{{ variant_data|json_script:"variant-data" }}
+<script>
+    // ── Quantity Selector ──
+    function changeQty(delta) {
+        const input = document.getElementById('qty-input');
+        const newVal = Math.max(1, Math.min(99, parseInt(input.value) + delta));
+        input.value = newVal;
+    }
+
+    // ── Image Zoom ──
+    function openZoom() {
+        const img = document.getElementById('main-product-image');
+        if (!img) return;
+        const overlay = document.getElementById('zoom-overlay');
+        document.getElementById('zoom-image').src = img.src;
+        overlay.classList.add('active');
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') document.getElementById('zoom-overlay')?.classList.remove('active');
+    });
+
+    // ── Thumbnail Selection ──
+    function selectThumb(btn, url) {
+        const img = document.getElementById('main-product-image');
+        if (img) img.src = url;
+        btn.closest('.grid').querySelectorAll('button').forEach(b => {
+            b.classList.remove('border-eco-500', 'ring-2', 'ring-eco-100');
+            b.classList.add('border-gray-100');
+        });
+        btn.classList.remove('border-gray-100');
+        btn.classList.add('border-eco-500', 'ring-2', 'ring-eco-100');
+    }
+
+    // ── Sticky Mobile CTA ──
+    (function() {
+        const ctaSection = document.getElementById('main-cta-section');
+        const stickyCta = document.getElementById('sticky-cta');
+        if (!ctaSection || !stickyCta) return;
+        const observer = new IntersectionObserver(([entry]) => {
+            stickyCta.classList.toggle('visible', !entry.isIntersecting);
+        }, { threshold: 0 });
+        observer.observe(ctaSection);
+    })();
+
+    // ── Variant Switcher ──
+    (function () {
+        const variantDataElement = document.getElementById('variant-data');
+        if (!variantDataElement) return;
+
+        const variants = JSON.parse(variantDataElement.textContent);
+        const mainImage = document.getElementById('main-product-image');
+        const mainPrice = document.getElementById('product-price-main');
+        const checkoutPrice = document.getElementById('checkout-price');
+        const buttonPrice = document.getElementById('add-to-cart-price');
+        const stickyPrice = document.getElementById('sticky-price');
+
+        function applyVariant(input) {
+            const variant = variants[input.dataset.variantKey];
+            if (!variant) return;
+
+            if (variant.product_url && variant.product_url !== window.location.pathname) {
+                window.location.href = variant.product_url;
+                return;
+            }
+
+            if (variant.image && mainImage) {
+                mainImage.src = variant.image;
+                mainImage.alt = variant.alt;
+            }
+
+            if (mainPrice) mainPrice.textContent = variant.priceLabel;
+            if (checkoutPrice) checkoutPrice.textContent = variant.priceLabel;
+            if (buttonPrice) buttonPrice.textContent = '— ' + variant.priceLabel;
+            if (stickyPrice) stickyPrice.textContent = variant.priceLabel;
+        }
+
+        document.querySelectorAll('.js-variant-option').forEach((input) => {
+            input.addEventListener('change', () => applyVariant(input));
+            if (input.checked) applyVariant(input);
+        });
+    })();
+</script>
+
 {% endblock %}
+

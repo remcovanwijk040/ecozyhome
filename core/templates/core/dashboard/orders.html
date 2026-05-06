@@ -1,0 +1,74 @@
+{% extends 'core/dashboard/base.html' %}
+{% block title %}Bestellingen{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+    <div>
+        <h1 class="font-display text-2xl font-bold text-gray-900">Bestellingen</h1>
+        <p class="text-sm text-gray-500 mt-1">Beheer en bekijk alle klantbestellingen.</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-6">
+    <form method="get" class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-[200px]">
+            <input type="text" name="q" value="{{ search }}" placeholder="Zoek op naam of e-mail..." class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-eco-500 focus:ring-eco-500">
+        </div>
+        <select name="status" class="rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-eco-500 focus:ring-eco-500">
+            <option value="">Alle statussen</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-eco-600 text-white text-sm font-semibold hover:bg-eco-700 transition-colors">Filteren</button>
+        {% if search or status_filter %}
+        <a href="{% url 'core:dashboard_orders' %}" class="text-sm text-gray-500 hover:text-gray-700">Reset</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                    <th class="px-6 py-3">#</th>
+                    <th class="px-6 py-3">Klant</th>
+                    <th class="px-6 py-3">Adres</th>
+                    <th class="px-6 py-3">Bedrag</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3">Datum</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                {% for order in orders %}
+                <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ order.id }}</td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">{{ order.full_name }}</div>
+                        <div class="text-xs text-gray-400">{{ order.email }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ order.city }}, {{ order.country }}</td>
+                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">&euro;{{ order.total_amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if order.status == 'Paid' %}bg-green-100 text-green-700{% elif order.status == 'Shipped' %}bg-blue-100 text-blue-700{% elif order.status == 'Cancelled' %}bg-red-100 text-red-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">{{ order.status }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ order.created_at|date:"d M Y" }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'core:dashboard_order_detail' pk=order.pk %}" class="text-sm font-medium text-eco-600 hover:text-eco-700">Bekijken</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="px-6 py-16 text-center text-gray-400">
+                    <div class="text-4xl mb-3">📦</div>
+                    Geen bestellingen gevonden
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -40,6 +40,85 @@
   .glass-card {
     @apply bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl;
   }
+
+  /* ── Product Page: Tabs ── */
+  .product-tab {
+    @apply relative px-5 py-3 text-sm font-semibold text-gray-500 transition-all duration-200 cursor-pointer hover:text-eco-700;
+  }
+  .product-tab-active {
+    @apply text-eco-700;
+  }
+  .product-tab-active::after {
+    content: '';
+    @apply absolute bottom-0 left-0 right-0 h-0.5 bg-eco-600 rounded-full;
+  }
+
+  /* ── Product Page: USP Bar ── */
+  .usp-item {
+    @apply flex items-center gap-2.5 text-sm text-gray-600;
+  }
+  .usp-item svg {
+    @apply w-5 h-5 text-eco-600 flex-shrink-0;
+  }
+
+  /* ── Product Page: Sticky Mobile CTA ── */
+  .sticky-cta {
+    @apply fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-gray-200 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sticky-cta.visible {
+    transform: translateY(0);
+  }
+
+  /* ── Product Page: Image Zoom Overlay ── */
+  .zoom-overlay {
+    @apply fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .zoom-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .zoom-overlay img {
+    @apply max-w-full max-h-full object-contain rounded-2xl shadow-2xl;
+  }
+
+  /* ── Product Page: Quantity Input ── */
+  .quantity-btn {
+    @apply w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 font-semibold transition-all duration-150 hover:bg-eco-50 hover:border-eco-300 hover:text-eco-700 active:scale-95 select-none cursor-pointer;
+  }
+  .quantity-value {
+    @apply w-12 text-center text-base font-bold text-gray-900 tabular-nums bg-transparent border-none focus:outline-none;
+  }
+
+  /* ── Product Page: Share Buttons ── */
+  .share-btn {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-500 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-gray-300;
+  }
+  .share-btn svg {
+    @apply w-[18px] h-[18px];
+  }
+
+  /* ── Product Page: Payment Badges ── */
+  .payment-badge {
+    @apply h-7 opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0;
+  }
+
+  /* ── Product Page: Related Products Scroll ── */
+  .scroll-snap-container {
+    @apply flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-snap-container::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-snap-item {
+    @apply snap-start flex-shrink-0 w-[260px] sm:w-[280px];
+  }
 }
 
 @layer utilities {

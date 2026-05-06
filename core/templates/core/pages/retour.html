@@ -1,65 +1,110 @@
 {% extends 'core/base.html' %}
+{% block title %}Retourbeleid — Ecozyhome{% endblock %}
+{% block meta_description %}Niet tevreden? Bij Ecozyhome kun je binnen 14 dagen kosteloos retourneren. Lees hier hoe het werkt.{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12 prose prose-green">
-<div class="container userInfo">
-<h1 class="ebs-content-header">
+<div class="bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <!-- Breadcrumb -->
+        <nav class="text-sm text-gray-400 mb-6">
+            <a href="/" class="hover:text-eco-600 transition-colors">Home</a>
+            <span class="mx-2">›</span>
+            <span class="text-gray-600 font-medium">Retourbeleid</span>
+        </nav>
 
-            Retourvoorwaarden
+        <!-- Header -->
+        <h1 class="font-display text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Retourbeleid</h1>
+        <p class="mt-3 text-gray-500 text-lg leading-relaxed">Niet helemaal tevreden? Geen probleem — retourneren kan eenvoudig en kosteloos.</p>
 
-        </h1>
-<br/>
-<p class="MsoNormal"><br/>
-<a href="http://www.eco-logisch.nl/upload/Retourformulier_-_Ecozyhome.pdf">Download hier het retourformulier</a><br/>
-<br/>
-<br/>
-<strong>Annuleringen:<br/>
-</strong><br/>
+        <!-- Summary Card -->
+        <div class="mt-10 rounded-2xl bg-eco-50 border border-eco-100 p-6 flex items-start gap-4">
+            <div class="text-3xl flex-shrink-0">📦</div>
+            <div>
+                <h3 class="text-base font-bold text-gray-900 mb-1">Kort samengevat</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Je hebt <strong>14 dagen bedenktijd</strong> na ontvangst van je bestelling. Stuur het product ongebruikt en in de originele verpakking retour, en je ontvangt je geld binnen 14 dagen terug.</p>
+            </div>
+        </div>
 
-1.1 Annuleringen van bestellingen zijn in principe niet mogelijk, tenzij hierover voorafgaand aan de aankoop anders is overeengekomen tussen Ecozyhome en de klant.<br/>
+        <!-- Content -->
+        <div class="mt-12 space-y-10">
 
-1.2 Indien er een uitzondering wordt gemaakt voor annuleringen, dient de klant dit schriftelijk aan te vragen bij Ecozyhome. Ecozyhome behoudt zich het recht voor om naar eigen oordeel te beslissen of de annulering kan worden geaccepteerd.<br/>
-<br/>
-<strong>Breuk en Garantie:<br/>
-</strong><br/>
+            <!-- Bedenktijd -->
+            <section>
+                <h2 class="font-display text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-eco-600">🔄</span> Bedenktijd van 14 dagen
+                </h2>
+                <p class="text-gray-600 leading-relaxed">Vanaf de dag dat je je bestelling ontvangt, heb je 14 kalenderdagen om te beslissen of je het product wilt houden. Dit recht geldt conform de Europese wetgeving voor online aankopen (Wet Koop op Afstand).</p>
+            </section>
 
-2.1 Mocht er bij ontvangst van de bestelling sprake zijn van beschadiging, breuk of defecten, dient de klant dit onmiddellijk, doch uiterlijk binnen 48 uur na ontvangst van de goederen, schriftelijk te melden aan Ecozyhome.<br/>
+            <!-- Hoe retourneren -->
+            <section>
+                <h2 class="font-display text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="text-eco-600">📋</span> Hoe retourneer ik?
+                </h2>
+                <ol class="space-y-3">
+                    <li class="flex gap-3 text-gray-600">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-eco-100 text-eco-700 text-sm font-bold flex items-center justify-center">1</span>
+                        <span><strong class="text-gray-900">Neem contact op</strong> via <a href="mailto:support@ecozyhome.nl" class="text-eco-600 font-medium hover:underline">support@ecozyhome.nl</a> met je ordernummer en de reden van retour.</span>
+                    </li>
+                    <li class="flex gap-3 text-gray-600">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-eco-100 text-eco-700 text-sm font-bold flex items-center justify-center">2</span>
+                        <span>Wij sturen je per e-mail een <strong class="text-gray-900">retourinstructie</strong> met het verzendadres.</span>
+                    </li>
+                    <li class="flex gap-3 text-gray-600">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-eco-100 text-eco-700 text-sm font-bold flex items-center justify-center">3</span>
+                        <span><strong class="text-gray-900">Verpak het product</strong> zorgvuldig in de originele verpakking (indien mogelijk).</span>
+                    </li>
+                    <li class="flex gap-3 text-gray-600">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-eco-100 text-eco-700 text-sm font-bold flex items-center justify-center">4</span>
+                        <span><strong class="text-gray-900">Verstuur het pakket</strong> via een verzenddienst naar keuze. Bewaar het track &amp; trace nummer.</span>
+                    </li>
+                </ol>
+            </section>
 
-2.2 De klant dient een gedetailleerd bericht te verstrekken waarin de aard van de beschadiging, breuk of het defect wordt beschreven, evenals relevante ordernummers, productcodes en foto's ter ondersteuning van de claim.<br/>
+            <!-- Terugbetaling -->
+            <section>
+                <h2 class="font-display text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-eco-600">💰</span> Terugbetaling
+                </h2>
+                <p class="text-gray-600 leading-relaxed">Zodra wij het geretourneerde product hebben ontvangen en gecontroleerd, storten wij het aankoopbedrag (inclusief eventuele standaard verzendkosten) <strong class="text-gray-900">binnen 14 werkdagen</strong> terug op dezelfde betaalmethode waarmee je hebt betaald.</p>
+            </section>
 
-2.3 Ecozyhome zal binnen een redelijke termijn reageren op de melding en samen met de klant een passende oplossing proberen te vinden. Dit kan bijvoorbeeld een vervanging van het beschadigde artikel, een creditering of een andere overeengekomen oplossing zijn.<br/>
+            <!-- Voorwaarden -->
+            <section>
+                <h2 class="font-display text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="text-eco-600">📌</span> Voorwaarden
+                </h2>
+                <ul class="space-y-2">
+                    <li class="flex items-start gap-3 text-gray-600">
+                        <svg class="w-5 h-5 text-eco-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        Het product moet <strong class="text-gray-900">ongebruikt, onbeschadigd en in de originele verpakking</strong> worden teruggestuurd.
+                    </li>
+                    <li class="flex items-start gap-3 text-gray-600">
+                        <svg class="w-5 h-5 text-eco-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        De retourzending is voor rekening van de klant, tenzij het product beschadigd of foutief geleverd is.
+                    </li>
+                    <li class="flex items-start gap-3 text-gray-600">
+                        <svg class="w-5 h-5 text-eco-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        Hygiëne-gevoelige producten kunnen alleen worden geretourneerd als de verpakking ongeopend is.
+                    </li>
+                </ul>
+            </section>
 
-2.4 De garantieperiode voor producten wordt vastgesteld op basis van de specifieke garantievoorwaarden van de fabrikant. Klanten worden verzocht deze voorwaarden zorgvuldig door te nemen voordat ze aanspraak maken op garantie.<br/>
-<br/>
-<strong>Procedure voor Retourzendingen:<br/>
-</strong><br/>
+            <!-- Beschadigd -->
+            <section class="rounded-2xl bg-amber-50 border border-amber-100 p-6">
+                <h2 class="font-display text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    ⚠️ Beschadigd of verkeerd product ontvangen?
+                </h2>
+                <p class="text-gray-600 leading-relaxed text-sm">Neem dan binnen <strong class="text-gray-900">48 uur</strong> contact met ons op via <a href="mailto:support@ecozyhome.nl" class="text-eco-600 font-medium hover:underline">support@ecozyhome.nl</a>. Voeg foto's toe van de beschadiging en vermeld je ordernummer. Wij zorgen kosteloos voor een vervanging of terugbetaling.</p>
+            </section>
 
-3.1 Retourzendingen dienen altijd vooraf met Ecozyhome te worden overlegd en schriftelijk te worden goedgekeurd.<br/>
+            <!-- Vragen -->
+            <section class="pt-6 border-t border-gray-100">
+                <h2 class="font-display text-xl font-bold text-gray-900 mb-3">Nog vragen?</h2>
+                <p class="text-gray-600 leading-relaxed">Stuur ons gerust een bericht via het <a href="/#contact" class="text-eco-600 font-medium hover:underline">contactformulier</a> of mail naar <a href="mailto:support@ecozyhome.nl" class="text-eco-600 font-medium hover:underline">support@ecozyhome.nl</a>. We helpen je graag!</p>
+            </section>
 
-3.2 Indien Ecozyhome een retourzending goedkeurt, zal zij instructies verstrekken over de verzending en het retourproces.<br/>
-
-3.3 Alle retourzendingen moeten adequaat worden verpakt om beschadiging tijdens het transport te voorkomen. De klant is verantwoordelijk voor eventuele schade die voortvloeit uit onjuiste verpakking.<br/>
-
-3.4 De klant is verantwoordelijk voor de verzendkosten van de retourzending, tenzij anders overeengekomen met Ecozyhome.<br/>
-<br/>
-<strong>Uitgesloten Producten:<br/>
-</strong><br/>
-
-4.1 Voor sommige producten kunnen specifieke retourvoorwaarden gelden, zoals bederfelijke goederen of producten met een beperkte houdbaarheid. In dergelijke gevallen zal Ecozyhome de klant informeren over eventuele beperkingen met betrekking tot retournering.<br/>
-<br/>
-<strong>Terugbetalingen:<br/>
-</strong><br/>
-
-5.1 In het geval van een geaccepteerde retourzending zal Ecozyhome de creditering verwerken binnen een redelijke termijn na ontvangst en inspectie van de geretourneerde goederen.<br/>
-<strong><br/>
-
-Uitzonderlijke Omstandigheden:<br/>
-</strong><br/>
-
-6.1 In uitzonderlijke situaties kan Ecozyhome afwijken van deze retourvoorwaarden, mits dit schriftelijk is overeengekomen met de klant.<br/>
-<br/>
-
- </p>
-<br/><br/>
-</div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'core/dashboard/base.html' %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <a href="{% url 'core:dashboard_orders' %}" class="text-sm text-gray-500 hover:text-eco-600 transition-colors">← Terug naar bestellingen</a>
+        <h1 class="font-display text-2xl font-bold text-gray-900 mt-2">Order #{{ order.id }}</h1>
+    </div>
+    <button onclick="copyDropshipInfo()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-eco-600 text-white text-sm font-semibold hover:bg-eco-700 transition-colors" id="copy-btn">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9.75a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>
+        Kopieer voor Dropshipper
+    </button>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+
+        <!-- Dropship Summary (copyable) -->
+        <div class="bg-amber-50 rounded-2xl border border-amber-200 shadow-sm overflow-hidden" id="dropship-card">
+            <div class="px-6 py-4 border-b border-amber-200 flex items-center gap-2">
+                <span class="text-lg">📋</span>
+                <h2 class="text-base font-bold text-gray-900">Bestelling doorzetten naar leverancier</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <!-- Shipping address -->
+                <div>
+                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Verzendadres</div>
+                    <div class="text-sm text-gray-900 leading-relaxed" id="ds-address">
+                        {{ order.full_name }}<br>
+                        {{ order.address }}<br>
+                        {{ order.postal_code }} {{ order.city }}<br>
+                        {{ order.country }}
+                    </div>
+                </div>
+                <!-- Products -->
+                <div>
+                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Producten</div>
+                    <div class="space-y-2">
+                        {% for item in items %}
+                        <div class="flex items-start justify-between bg-white rounded-xl p-3 border border-amber-100">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-900">{{ item.quantity }}x {{ item.product.title|default:"Onbekend" }}</div>
+                                {% if item.product.ean %}
+                                <div class="text-xs text-gray-500 mt-0.5">EAN: <span class="font-mono">{{ item.product.ean }}</span></div>
+                                {% endif %}
+                                {% if item.product.brand %}
+                                <div class="text-xs text-gray-400">Merk: {{ item.product.brand }}</div>
+                                {% endif %}
+                            </div>
+                            {% if item.product.original_url %}
+                            <a href="{{ item.product.original_url }}" target="_blank" rel="noopener" class="flex-shrink-0 ml-3 text-xs font-medium text-eco-600 hover:text-eco-700 flex items-center gap-1">
+                                Leverancier
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full product details -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-base font-bold text-gray-900">Productdetails</h2>
+            </div>
+            <div class="divide-y divide-gray-50">
+                {% for item in items %}
+                <div class="px-6 py-4">
+                    <div class="flex items-start gap-4">
+                        {% if item.product and item.product.image_url %}
+                        <img src="{{ item.product.image_url }}" alt="" class="w-16 h-16 rounded-lg object-contain bg-gray-50 border border-gray-100 flex-shrink-0">
+                        {% else %}
+                        <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-semibold text-gray-900">{{ item.product.title|default:"Verwijderd product" }}</div>
+                            <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                                <span>Aantal: <strong class="text-gray-700">{{ item.quantity }}</strong></span>
+                                <span>Prijs: <strong class="text-gray-700">&euro;{{ item.price|floatformat:2 }}</strong></span>
+                                {% if item.product.purchase_price %}
+                                <span>Inkoopprijs: <strong class="text-gray-700">&euro;{{ item.product.purchase_price|floatformat:2 }}</strong></span>
+                                {% endif %}
+                                {% if item.product.ean %}
+                                <span>EAN: <strong class="font-mono text-gray-700">{{ item.product.ean }}</strong></span>
+                                {% endif %}
+                                {% if item.product.brand %}
+                                <span>Merk: <strong class="text-gray-700">{{ item.product.brand }}</strong></span>
+                                {% endif %}
+                            </div>
+                            {% if item.product.original_url %}
+                            <a href="{{ item.product.original_url }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-2 text-xs font-medium text-eco-600 hover:text-eco-700">
+                                Open bij leverancier →
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="px-6 py-8 text-center text-gray-400 text-sm">Geen producten gevonden</div>
+                {% endfor %}
+            </div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-between items-center">
+                <span class="text-sm font-semibold text-gray-900">Totaal</span>
+                <span class="text-lg font-bold text-gray-900">&euro;{{ order.total_amount|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Klantgegevens</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div><span class="text-gray-500">Naam</span><div class="font-medium text-gray-900 mt-0.5">{{ order.full_name }}</div></div>
+                <div><span class="text-gray-500">E-mail</span><div class="font-medium text-gray-900 mt-0.5">{{ order.email }}</div></div>
+                <div><span class="text-gray-500">Adres</span><div class="font-medium text-gray-900 mt-0.5">{{ order.address }}</div></div>
+                <div><span class="text-gray-500">Postcode & Stad</span><div class="font-medium text-gray-900 mt-0.5">{{ order.postal_code }} {{ order.city }}</div></div>
+                <div><span class="text-gray-500">Land</span><div class="font-medium text-gray-900 mt-0.5">{{ order.country }}</div></div>
+                {% if order.stripe_checkout_id %}
+                <div><span class="text-gray-500">Stripe ID</span><div class="font-medium text-gray-900 mt-0.5 text-xs font-mono">{{ order.stripe_checkout_id }}</div></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Status -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Status bijwerken</h2>
+            <form method="post">
+                {% csrf_token %}
+                <select name="status" class="w-full rounded-xl border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-eco-500 focus:ring-eco-500 mb-3">
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="w-full px-4 py-2.5 rounded-xl bg-eco-600 text-white text-sm font-semibold hover:bg-eco-700 transition-colors">Opslaan</button>
+            </form>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Snelle acties</h2>
+            <div class="space-y-2">
+                {% for item in items %}
+                {% if item.product.original_url %}
+                <a href="{{ item.product.original_url }}" target="_blank" rel="noopener" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-eco-50 hover:text-eco-700 transition-all border border-gray-100">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                    <span class="truncate">{{ item.product.title|truncatechars:30 }}</span>
+                </a>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 class="text-base font-bold text-gray-900 mb-4">Tijdlijn</h2>
+            <div class="space-y-4 text-sm">
+                <div class="flex gap-3">
+                    <div class="w-2 h-2 rounded-full bg-eco-500 mt-1.5 flex-shrink-0"></div>
+                    <div><div class="font-medium text-gray-900">Bestelling aangemaakt</div><div class="text-xs text-gray-400">{{ order.created_at|date:"d M Y H:i" }}</div></div>
+                </div>
+                {% if order.status != 'Pending' %}
+                <div class="flex gap-3">
+                    <div class="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
+                    <div><div class="font-medium text-gray-900">Status: {{ order.status }}</div><div class="text-xs text-gray-400">{{ order.updated_at|date:"d M Y H:i" }}</div></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden textarea for copy -->
+<textarea id="dropship-text" class="sr-only" aria-hidden="true">BESTELLING #{{ order.id }} - Ecozyhome
+========================
+VERZENDADRES:
+{{ order.full_name }}
+{{ order.address }}
+{{ order.postal_code }} {{ order.city }}
+{{ order.country }}
+
+PRODUCTEN:
+{% for item in items %}{{ item.quantity }}x {{ item.product.title|default:"Onbekend" }}{% if item.product.ean %} (EAN: {{ item.product.ean }}){% endif %}{% if item.product.original_url %}
+   Link: {{ item.product.original_url }}{% endif %}
+{% endfor %}
+========================</textarea>
+
+<script>
+function copyDropshipInfo() {
+    const text = document.getElementById('dropship-text').value;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Gekopieerd!';
+        btn.classList.remove('bg-eco-600', 'hover:bg-eco-700');
+        btn.classList.add('bg-green-600');
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('bg-green-600');
+            btn.classList.add('bg-eco-600', 'hover:bg-eco-700');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

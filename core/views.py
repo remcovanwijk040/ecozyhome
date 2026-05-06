@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Product, Category
+from .variant_utils import product_variant_context, selected_variant
 
 
 from django.db.models import F
@@ -37,9 +38,24 @@ def product_detail(request, pk):
         category=product.category,
     ).exclude(pk=product.pk).order_by('?')[:4]
 
+    specifications = product.specifications or {}
+    visible_specs = {
+        key: value for key, value in specifications.items()
+        if not str(key).startswith('_')
+    }
+
+    from datetime import date, timedelta
+    price_valid_until = date.today() + timedelta(days=90)
+
     return render(request, 'core/product_detail.html', {
         'product': product,
         'related_products': related_products,
+        'visible_specs': visible_specs,
+        'product_info_sections': specifications.get('_sections', []),
+        'product_documents': specifications.get('_documents', []),
+        'product_videos': specifications.get('_videos', []),
+        'price_valid_until': price_valid_until,
+        **product_variant_context(product),
     })
 
 
@@ -55,6 +71,9 @@ def category_detail(request, slug):
         products = Product.objects.filter(category=category).order_by('-created_at')
         subcategories = None
 
+    # Extract available brands before applying filters
+    brands = products.exclude(brand='').exclude(brand__isnull=True).values_list('brand', flat=True).distinct().order_by('brand')
+
     # Filtering
     brand = request.GET.get('brand')
     if brand:
@@ -64,6 +83,24 @@ def category_detail(request, slug):
     if subcategory_filter:
         products = products.filter(category__slug=subcategory_filter)
 
+    min_price = request.GET.get('min_price')
+    if min_price and min_price.strip():
+        try:
+            products = products.filter(retail_price__gte=float(min_price))
+        except ValueError:
+            pass
+
+    max_price = request.GET.get('max_price')
+    if max_price and max_price.strip():
+        try:
+            products = products.filter(retail_price__lte=float(max_price))
+        except ValueError:
+            pass
+
+    in_stock = request.GET.get('in_stock')
+    if in_stock == '1':
+        products = products.exclude(stock_status__icontains='niet op voorraad').exclude(stock_status__icontains='uitverkocht')
+
     sort = request.GET.get('sort', 'newest')
     if sort == 'price_asc':
         products = products.order_by('retail_price')
@@ -72,7 +109,6 @@ def category_detail(request, slug):
     elif sort == 'name':
         products = products.order_by('title')
 
-    brands = products.exclude(brand='').exclude(brand__isnull=True).values_list('brand', flat=True).distinct().order_by('brand')
 
     return render(request, 'core/category_detail.html', {
         'category': category,
@@ -82,6 +118,9 @@ def category_detail(request, slug):
         'current_brand': brand,
         'current_sub': subcategory_filter,
         'current_sort': sort,
+        'min_price': min_price,
+        'max_price': max_price,
+        'in_stock': in_stock,
     })
 
 # ==========================================
@@ -94,6 +133,7 @@ from django.urls import reverse
 from django.conf import settings
 import stripe
 import json
+from decimal import Decimal
 
 @require_POST
 def cart_add(request, pk):
@@ -101,11 +141,29 @@ def cart_add(request, pk):
     cart = request.session.get('cart', {})
     
     quantity = int(request.POST.get('quantity', 1))
-    
-    if str(pk) in cart:
-        cart[str(pk)] += quantity
+
+    variant = selected_variant(product, request.POST)
+    cart_key = str(pk)
+    if variant:
+        cart_key = f"{pk}:{variant['name']}:{variant['value']}"
+
+    if cart_key in cart:
+        if isinstance(cart[cart_key], dict):
+            cart[cart_key]['quantity'] += quantity
+        else:
+            cart[cart_key] += quantity
     else:
-        cart[str(pk)] = quantity
+        if variant:
+            cart[cart_key] = {
+                'product_id': pk,
+                'quantity': quantity,
+                'variant_name': variant['name'],
+                'variant_value': variant['value'],
+                'price': variant['amount'] or str(product.retail_price or Decimal('0')),
+                'image_url': variant['image'] or product.image_url or '',
+            }
+        else:
+            cart[cart_key] = quantity
         
     request.session['cart'] = cart
     
@@ -116,11 +174,15 @@ def cart_add(request, pk):
 def cart_update(request, pk):
     cart = request.session.get('cart', {})
     quantity = int(request.POST.get('quantity', 1))
+    cart_key = request.POST.get('cart_key', str(pk))
     
     if quantity > 0:
-        cart[str(pk)] = quantity
+        if isinstance(cart.get(cart_key), dict):
+            cart[cart_key]['quantity'] = quantity
+        else:
+            cart[cart_key] = quantity
     else:
-        cart.pop(str(pk), None)
+        cart.pop(cart_key, None)
         
     request.session['cart'] = cart
     # Render updated cart items partial
@@ -129,7 +191,8 @@ def cart_update(request, pk):
 @require_POST
 def cart_remove(request, pk):
     cart = request.session.get('cart', {})
-    cart.pop(str(pk), None)
+    cart_key = request.POST.get('cart_key', str(pk))
+    cart.pop(cart_key, None)
     request.session['cart'] = cart
     return render(request, 'core/partials/cart_slideover_content.html')
 
@@ -153,12 +216,15 @@ def checkout_session(request):
     line_items = []
     for item in cart_data['cart_items']:
         product = item['product']
+        product_name = product.title
+        if item.get('variant_value'):
+            product_name = f"{product.title} - {item['variant_value']}"
         line_items.append({
             'price_data': {
                 'currency': 'eur',
-                'unit_amount': int(product.retail_price * 100), # Stripe requires cents
+                'unit_amount': int(item['price'] * 100), # Stripe requires cents
                 'product_data': {
-                    'name': product.title,
+                    'name': product_name,
                 },
             },
             'quantity': item['quantity'],
@@ -225,3 +291,61 @@ def info_privacy(request):
 
 def info_bestel(request):
     return render(request, 'core/pages/bestel.html')
+
+def contact_page(request):
+    return render(request, 'core/pages/contact.html')
+
+from django.core.mail import send_mail
+
+@require_POST
+def contact_submit(request):
+    name = request.POST.get('name', '').strip()
+    email = request.POST.get('email', '').strip()
+    message = request.POST.get('message', '').strip()
+    
+    if name and email and message:
+        subject = f"Nieuw contactbericht via Ecozyhome van {name}"
+        body = f"Naam: {name}\nE-mail: {email}\n\nBericht:\n{message}"
+        to_email = settings.EMAIL_HOST_USER or 'info@ecozyhome.nl'
+        
+        try:
+            send_mail(
+                subject,
+                body,
+                getattr(settings, 'DEFAULT_FROM_EMAIL', 'info@ecozyhome.nl'),
+                [to_email],
+                fail_silently=False,
+            )
+            return HttpResponse('<div class="rounded-xl bg-green-50 border border-green-100 p-6 text-center"><div class="text-4xl mb-4">✅</div><h3 class="text-lg font-bold text-green-800 mb-2">Bedankt voor je bericht!</h3><p class="text-green-700">We hebben je e-mail ontvangen en nemen zo snel mogelijk contact met je op.</p></div>')
+        except Exception as e:
+            return HttpResponse('<div class="rounded-xl bg-red-50 border border-red-100 p-6 text-center"><div class="text-4xl mb-4">⚠️</div><h3 class="text-lg font-bold text-red-800 mb-2">Oeps, er ging iets mis</h3><p class="text-red-700">Je bericht kon niet verstuurd worden. Controleer de e-mail instellingen of probeer het later opnieuw.</p></div>')
+            
+    return HttpResponse('<div class="rounded-xl bg-red-50 p-4 text-red-700 font-medium text-center">Vul a.u.b. alle velden in.</div>')
+
+
+@require_POST
+def newsletter_subscribe(request):
+    from .models import NewsletterSubscriber
+    email = request.POST.get('email', '').strip()
+
+    if not email:
+        return HttpResponse(
+            '<div class="flex items-center gap-3 text-red-600 text-sm font-medium">'
+            '<svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>'
+            'Vul je e-mailadres in.</div>'
+        )
+
+    _, created = NewsletterSubscriber.objects.get_or_create(email=email)
+
+    if created:
+        return HttpResponse(
+            '<div class="flex items-center gap-3 text-green-600 text-sm font-semibold">'
+            '<svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>'
+            'Welkom! Je bent aangemeld voor onze nieuwsbrief. 🎉</div>'
+        )
+    else:
+        return HttpResponse(
+            '<div class="flex items-center gap-3 text-eco-600 text-sm font-medium">'
+            '<svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>'
+            'Je bent al aangemeld — we houden je op de hoogte!</div>'
+        )

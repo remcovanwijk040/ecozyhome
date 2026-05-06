@@ -26,6 +26,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 
     <!-- Alpine.js -->
+    <style>[x-cloak] { display: none !important; }</style>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {% block extra_head %}{% endblock %}
@@ -57,13 +58,76 @@
                 <!-- Desktop Nav -->
                 <div class="hidden lg:flex lg:items-center lg:gap-1">
                     <a href="/" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-home">Home</a>
-                    <a href="#categorieën" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-shop">Winkel</a>
-                    <a href="#over-ons" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-about">Over Ons</a>
-                    <a href="#contact" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-contact">Contact</a>
+                    
+                    <!-- Winkel Mega Menu -->
+                    <div class="relative" x-data="{ open: false, activeCat: null }" @mouseenter="open = true" @mouseleave="open = false; activeCat = null">
+                        <a href="/#categorieën" class="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-all duration-200" :class="open ? 'text-eco-700 bg-eco-50' : 'hover:text-eco-700 hover:bg-eco-50'" id="nav-shop">
+                            Winkel
+                            <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'text-eco-700 rotate-180' : 'text-gray-400'" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </a>
+
+                        <!-- Mega Menu Panel -->
+                        <div class="absolute left-0 top-full pt-2 z-50 transition-all duration-200" x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2" x-cloak>
+                            <div class="flex bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                                <!-- Left: Parent Categories -->
+                                <div class="w-64 border-r border-gray-100 py-3">
+                                    {% for cat in global_categories %}
+                                    <a href="{% url 'core:category_detail' slug=cat.slug %}" class="flex items-center gap-3 px-5 py-3 transition-all duration-150" :class="activeCat === {{ forloop.counter }} ? 'bg-eco-50 text-eco-700' : 'text-gray-700 hover:bg-gray-50'" @mouseenter="activeCat = {{ forloop.counter }}">
+                                        <span class="text-xl flex-shrink-0">{{ cat.icon }}</span>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm font-medium truncate">{{ cat.name }}</div>
+                                        </div>
+                                        {% if cat.children.count > 0 %}
+                                        <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                                        {% endif %}
+                                    </a>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Right: Subcategories -->
+                                <div class="w-72 py-3 bg-gray-50/50">
+                                    {% for cat in global_categories %}
+                                    <div x-show="activeCat === {{ forloop.counter }}" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak>
+                                        <div class="px-5 pb-2 mb-1 border-b border-gray-100">
+                                            <a href="{% url 'core:category_detail' slug=cat.slug %}" class="text-xs font-bold text-eco-700 uppercase tracking-wider hover:underline">Alle {{ cat.name }}</a>
+                                        </div>
+                                        <div class="space-y-0.5 max-h-80 overflow-y-auto">
+                                            {% for child in cat.children.all %}
+                                            <a href="{% url 'core:category_detail' slug=child.slug %}" class="flex items-center justify-between px-5 py-2 text-sm text-gray-600 hover:text-eco-700 hover:bg-eco-50/80 transition-colors rounded-lg mx-2">
+                                                <span>{{ child.name }}</span>
+                                                <span class="text-xs text-gray-400 tabular-nums">{{ child.products.count }}</span>
+                                            </a>
+                                            {% empty %}
+                                            <div class="px-5 py-4 text-sm text-gray-400 italic">Geen subcategorieën</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                    <!-- Default state: no category hovered -->
+                                    <div x-show="activeCat === null" class="flex flex-col items-center justify-center h-full py-12 text-center">
+                                        <div class="text-3xl mb-3">👈</div>
+                                        <p class="text-sm text-gray-400">Hover over een categorie<br>om subcategorieën te zien</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/#over-ons" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-about">Over Ons</a>
+                    <a href="{% url 'core:contact_page' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-contact">Contact</a>
                 </div>
 
                 <!-- Right side actions -->
                 <div class="flex items-center gap-3">
+                    {% if request.user.is_staff %}
+                    <a href="{% url 'core:dashboard_overview' %}" class="relative p-2.5 rounded-xl text-gray-500 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-dashboard" title="Dashboard">
+                        <span class="sr-only">Dashboard</span>
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" /></svg>
+                    </a>
+                    {% endif %}
                     <button type="button" class="relative p-2.5 rounded-xl text-gray-500 hover:text-eco-700 hover:bg-eco-50 transition-all duration-200" id="nav-search-btn">
                         <span class="sr-only">Zoeken</span>
                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -95,9 +159,9 @@
         <div class="hidden lg:hidden border-t border-gray-100 bg-white" id="mobile-menu">
             <div class="px-4 py-4 space-y-1">
                 <a href="/" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Home</a>
-                <a href="#categorieën" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Winkel</a>
-                <a href="#over-ons" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Over Ons</a>
-                <a href="#contact" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Contact</a>
+                <a href="/#categorieën" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Winkel</a>
+                <a href="/#over-ons" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Over Ons</a>
+                <a href="{% url 'core:contact_page' %}" class="block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:bg-eco-50 hover:text-eco-700 transition-all">Contact</a>
             </div>
         </div>
     </nav>
@@ -109,7 +173,28 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-eco-950 text-white mt-20" id="contact">
+    <footer class="bg-eco-950 text-white mt-20">
+        <!-- Newsletter Bar -->
+        <div class="border-b border-eco-800/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="text-center md:text-left">
+                        <h3 class="font-display text-xl font-bold text-white">Blijf op de hoogte</h3>
+                        <p class="text-eco-200/70 text-sm mt-1">Ontvang als eerste onze aanbiedingen en duurzame tips.</p>
+                    </div>
+                    <div class="w-full md:w-auto" id="footer-newsletter-container">
+                        <form hx-post="{% url 'core:newsletter_subscribe' %}" hx-target="#footer-newsletter-container" hx-swap="innerHTML" class="flex gap-3 w-full md:w-auto">
+                            {% csrf_token %}
+                            <input type="email" name="email" placeholder="Je e-mailadres" required class="w-full md:w-72 rounded-xl bg-eco-900 border border-eco-700 px-4 py-3 text-sm text-white placeholder-eco-400 focus:border-eco-400 focus:ring-eco-400 focus:outline-none">
+                            <button type="submit" class="flex-shrink-0 rounded-xl bg-eco-600 hover:bg-eco-500 px-6 py-3 text-sm font-semibold text-white transition-colors duration-200">
+                                Aanmelden
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Main Footer -->
             <div class="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -122,16 +207,19 @@
                     <p class="text-eco-200/70 text-sm leading-relaxed">
                         Duurzame producten voor een groenere toekomst. Samen maken we het verschil, stap voor stap.
                     </p>
+                    <div class="mt-4 flex items-center gap-2 text-eco-200/70 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                        <a href="mailto:support@ecozyhome.nl" class="hover:text-white transition-colors">support@ecozyhome.nl</a>
+                    </div>
                 </div>
 
-                <!-- Shop -->
+                <!-- Shop (dynamic) -->
                 <div>
                     <h3 class="font-display font-semibold text-white mb-4 text-sm uppercase tracking-wider">Winkel</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Energie & Water</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Mooi & Gezond</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Wonen & Huishouden</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Tuin & Dier</a></li>
+                        {% for cat in global_categories %}
+                        <li><a href="{% url 'core:category_detail' slug=cat.slug %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">{{ cat.name }}</a></li>
+                        {% endfor %}
                     </ul>
                 </div>
 
@@ -141,8 +229,7 @@
                     <ul class="space-y-3">
                         <li><a href="{% url 'core:info_bestel' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Verzendbeleid & Bestelinformatie</a></li>
                         <li><a href="{% url 'core:info_retour' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Retourneren</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Veelgestelde Vragen</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Contact</a></li>
+                        <li><a href="{% url 'core:contact_page' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Contact</a></li>
                     </ul>
                 </div>
 
@@ -150,24 +237,22 @@
                 <div>
                     <h3 class="font-display font-semibold text-white mb-4 text-sm uppercase tracking-wider">Over Ons</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Ons Verhaal</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Duurzaamheid</a></li>
+                        <li><a href="/#over-ons" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Ons Verhaal</a></li>
                         <li><a href="{% url 'core:info_privacy' %}" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Privacybeleid</a></li>
-                        <li><a href="#" class="text-eco-200/70 hover:text-white text-sm transition-colors duration-200">Algemene Voorwaarden</a></li>
                     </ul>
                 </div>
             </div>
 
             <!-- Bottom bar -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-        <p>&copy; 2026 Ecozyhome. Alle rechten voorbehouden.</p>
-        <div class="flex items-center gap-4">
-            <a href="#" class="hover:text-eco-600 transition-colors">Algemene Voorwaarden</a>
-            <a href="#" class="hover:text-eco-600 transition-colors">Privacybeleid</a>
-            <a href="#" class="hover:text-eco-600 transition-colors">Retourneren</a>
+            <div class="py-8 border-t border-eco-800/50 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-eco-300/60">
+                <p>&copy; 2026 Ecozyhome. Alle rechten voorbehouden.</p>
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'core:info_privacy' %}" class="hover:text-white transition-colors">Privacybeleid</a>
+                    <a href="{% url 'core:info_retour' %}" class="hover:text-white transition-colors">Retourneren</a>
+                </div>
+            </div>
         </div>
-    </div>
-</footer>
+    </footer>
 
 <!-- Cart Slide-over -->
 <div id="cart-slideover" class="fixed inset-0 z-[100] hidden">

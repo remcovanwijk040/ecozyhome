@@ -140,6 +140,12 @@ class Command(BaseCommand):
             default=0,
             help="Max aantal producten om te scrapen (voor testen)",
         )
+        parser.add_argument(
+            "--url",
+            type=str,
+            default=None,
+            help="Scrape één specifieke product-URL",
+        )
 
     def handle(self, *args, **options):
         os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
@@ -148,6 +154,7 @@ class Command(BaseCommand):
         target_category = options.get("category")
         dry_run = options.get("dry_run", False)
         limit = options.get("limit", 0)
+        single_url = options.get("url")
 
         if dry_run:
             self.stdout.write(self.style.WARNING("[DRY RUN] Actief"))
@@ -178,6 +185,12 @@ class Command(BaseCommand):
 
             # ── BEPAAL CATEGORIEËN ──────────────────────────────────
             categories_to_scrape = CATEGORY_MAP.items()
+            if single_url:
+                categories_to_scrape = [("Direct", {
+                    "slug": "direct",
+                    "icon": "🌿",
+                    "subcategories": [{"name": "Direct", "url": single_url, "direct_product": True}],
+                })]
             if target_category:
                 categories_to_scrape = [(k, v) for k, v in CATEGORY_MAP.items() if target_category.lower() in k.lower()]
 
@@ -199,7 +212,7 @@ class Command(BaseCommand):
 
                     self.stdout.write(f"  [SUB] {full_cat_name}")
 
-                    if not dry_run:
+                    if not dry_run and not sub.get("direct_product"):
                         # Create or get parent category
                         parent_cat, _ = Category.objects.get_or_create(
                             slug=main_data['slug'],
@@ -217,32 +230,36 @@ class Command(BaseCommand):
                     # STAP 1: Verzamel alle URLs in deze subcategorie
                     product_urls = []
                     page_num = 1
-                    while True:
-                        url = sub_url if page_num == 1 else f"{sub_url}?p={page_num}"
-                        self.stdout.write(f"     Verzamelen pagina {page_num}...")
-                        try:
-                            page.goto(url, timeout=15000)
-                            page.wait_for_load_state("networkidle")
-                        except Exception as e:
-                            break
+                    if sub.get("direct_product"):
+                        product_urls = [sub_url]
+                        self.stdout.write("     Directe product-URL geselecteerd")
+                    else:
+                        while True:
+                            url = sub_url if page_num == 1 else f"{sub_url}?p={page_num}"
+                            self.stdout.write(f"     Verzamelen pagina {page_num}...")
+                            try:
+                                page.goto(url, timeout=15000)
+                                page.wait_for_load_state("networkidle")
+                            except Exception as e:
+                                break
 
-                        hrefs = page.evaluate("""() => {
-                            let links = document.querySelectorAll('.productlistrow a.plink[id*="ProductName"]');
-                            return Array.from(links).map(a => a.href);
-                        }""")
-                        
-                        if not hrefs:
-                            break
-                        
-                        for h in hrefs:
-                            if h not in product_urls:
-                                product_urls.append(h)
+                            hrefs = page.evaluate("""() => {
+                                let links = document.querySelectorAll('.productlistrow a.plink[id*="ProductName"]');
+                                return Array.from(links).map(a => a.href);
+                            }""")
+                            
+                            if not hrefs:
+                                break
+                            
+                            for h in hrefs:
+                                if h not in product_urls:
+                                    product_urls.append(h)
 
-                        has_next = page.evaluate(f"() => Array.from(document.querySelectorAll('a[href*=\"?p=\"]')).some(a => a.href.includes('?p={page_num + 1}'))")
-                        if has_next:
-                            page_num += 1
-                        else:
-                            break
+                            has_next = page.evaluate(f"() => Array.from(document.querySelectorAll('a[href*=\"?p=\"]')).some(a => a.href.includes('?p={page_num + 1}'))")
+                            if has_next:
+                                page_num += 1
+                            else:
+                                break
 
                     self.stdout.write(f"     Gevonden URLs: {len(product_urls)}")
 
@@ -278,7 +295,7 @@ class Command(BaseCommand):
                             }
                             
                             let descHtml = '';
-                            let descEl = document.querySelector('#details .product-description, #details');
+                            let descEl = document.querySelector('#product-description') || document.querySelector('#details .product-description, #details');
                             let descNode = document.querySelector('#ContentPlaceHolderMain_Panel1');
                             if(descNode) {
                                 // Clone it to not mess up the page
@@ -324,6 +341,21 @@ class Command(BaseCommand):
                                 // Clone to remove unwanted elements
                                 let clone = descEl.cloneNode(true);
                                 clone.querySelectorAll('select, form, input, button, script, style, .cart-actions, .omdooslist, [id*=Review], [id*=Offerte]').forEach(el => el.remove());
+                                clone.querySelectorAll('.visible-xs, #ContentPlaceHolderMain_UpdatePanel4').forEach(el => el.remove());
+                                clone.querySelectorAll('h2, h3, div').forEach(h => {
+                                    let text = (h.innerText || '').toLowerCase();
+                                    let className = (h.className || '').toLowerCase();
+                                    if(text.includes('andere uitvoering') || text.includes('misschien ook interessant') || text.includes('bekijk ook') || text.includes('gerelateerde') || text.includes('productspecificaties') || className.includes('header-product-details')) {
+                                        let sibling = h.nextSibling;
+                                        while(sibling) {
+                                            let next = sibling.nextSibling;
+                                            sibling.remove();
+                                            sibling = next;
+                                        }
+                                        h.remove();
+                                    }
+                                });
+                                clone.querySelectorAll('table.details-filter-table').forEach(t => t.remove());
                                 descHtml = clone.innerHTML.trim();
                             }
                             
@@ -338,6 +370,42 @@ class Command(BaseCommand):
                                     }
                                 });
                             });
+
+                            let documents = [];
+                            document.querySelectorAll('#details a[href$=".pdf"], #product-description a[href$=".pdf"], a.pdf').forEach(a => {
+                                let href = a.href;
+                                if(href && !documents.some(doc => doc.url === href)) {
+                                    documents.push({ title: (a.innerText || href.split('/').pop()).trim(), url: href });
+                                }
+                            });
+                            if(documents.length) specs['_documents'] = documents;
+
+                            let videos = [];
+                            document.querySelectorAll('a[href*="youtube.com/embed"], a[href*="youtu.be"]').forEach(a => {
+                                let href = a.href;
+                                if(href && !videos.includes(href)) videos.push(href);
+                            });
+                            if(videos.length) specs['_videos'] = videos;
+
+                            let detailText = document.querySelector('#product-description');
+                            if(detailText) {
+                                let text = detailText.innerText || '';
+                                let sectionNames = ['Specificaties:', 'Inhoud set:', 'Richtlijn hoeveelheid:'];
+                                let sections = [];
+                                sectionNames.forEach((name, idx) => {
+                                    let start = text.indexOf(name);
+                                    if(start === -1) return;
+                                    start += name.length;
+                                    let end = text.length;
+                                    sectionNames.forEach(other => {
+                                        let otherIndex = text.indexOf(other, start);
+                                        if(otherIndex !== -1 && otherIndex < end) end = otherIndex;
+                                    });
+                                    let body = text.slice(start, end).split('\n').map(line => line.trim()).filter(Boolean);
+                                    if(body.length) sections.push({ title: name.replace(':', ''), lines: body });
+                                });
+                                if(sections.length) specs['_sections'] = sections;
+                            }
                             
                             let brand = specs['Merk'] || specs['Merk:'] || '';
                             let ean = specs['EAN'] || specs['EAN code'] || specs['EAN:'] || '';
@@ -352,21 +420,30 @@ class Command(BaseCommand):
                             }
                             
                             let images = [];
-                            // Target only main content product images, exclude shopping cart
-                            let imgNodes = document.querySelectorAll('#ContentPlaceHolderMain_ProductImage, img[id*="ContentPlaceHolderMain"][id*="ProductImage"], .productimagediv img, a.MagicZoom img, .sp-slide img');
-                            imgNodes.forEach(img => {
-                                let src = img.src || img.getAttribute('data-src') || '';
-                                if(src && !images.includes(src) && !src.includes('pixel') && !src.includes('logo') && !src.includes('ShoppingCart')) {
-                                    images.push(src);
+                            let imageKeys = [];
+                            let addImage = (url) => {
+                                if(!url) return;
+                                let abs = new URL(url, window.location.href).href;
+                                let lower = abs.toLowerCase();
+                                let blocked = ['pixel', 'logo', 'shoppingcart', 'icon-vid', 'reviewster', 'cat-', 'radiatorfolie', '/nl.png'];
+                                if(blocked.some(part => lower.includes(part))) return;
+                                let key = decodeURIComponent(abs.split('/').pop() || abs).toLowerCase();
+                                if(!imageKeys.includes(key)) {
+                                    imageKeys.push(key);
+                                    images.push(abs);
                                 }
+                            };
+                            document.querySelectorAll('.main-image a[href], .main-image img, #ContentPlaceHolderMain_ProductImage').forEach(el => {
+                                addImage(el.href || el.src || el.getAttribute('data-src'));
                             });
-                            // Also check MagicZoom links for high-res images
-                            document.querySelectorAll('a.MagicZoom, a.sp-thumb').forEach(a => {
-                                let href = a.href;
-                                if(href && href.includes('cdn.') && !images.includes(href)) {
-                                    images.push(href);
-                                }
+                            document.querySelectorAll('a[href*="images_content"], img[src*="images_content"]').forEach(el => {
+                                addImage(el.href || el.src || el.getAttribute('data-src'));
                             });
+                            document.querySelectorAll('.productimagediv img').forEach(img => addImage(img.src || img.getAttribute('data-src')));
+                            let dropdownScript = Array.from(document.querySelectorAll('script')).map(s => s.innerText).find(text => text.includes('productdropdownimages'));
+                            if(dropdownScript) {
+                                Array.from(dropdownScript.matchAll(/\[(\d+),\s*"([^"]+)"\]/g)).forEach(match => addImage('https://www.eco-logisch.nl/images/' + match[2]));
+                            }
                             
                             let options = {};
                             let selects = document.querySelectorAll('select');
@@ -404,21 +481,24 @@ class Command(BaseCommand):
                             scraped_count += 1
                             continue
 
+                        defaults = {
+                            "title": data['title'],
+                            "description": data['descHtml'],
+                            "brand": data['brand'],
+                            "ean": data['ean'][:50] if data['ean'] else '',
+                            "purchase_price": p_price,
+                            "retail_price": r_price,
+                            "stock_status": data['stock_status'][:255] if data['stock_status'] else '',
+                            "specifications": data['specs'],
+                            "options": data['options'] if data['options'] else None,
+                            "image_url": data['images'][0] if data['images'] else '',
+                        }
+                        if category_obj:
+                            defaults["category"] = category_obj
+
                         product, created = Product.objects.update_or_create(
                             original_url=p_url,
-                            defaults={
-                                "title": data['title'],
-                                "description": data['descHtml'],
-                                "brand": data['brand'],
-                                "ean": data['ean'][:50] if data['ean'] else '',
-                                "purchase_price": p_price,
-                                "retail_price": r_price,
-                                "stock_status": data['stock_status'][:255] if data['stock_status'] else '',
-                                "specifications": data['specs'],
-                                "options": data['options'] if data['options'] else None,
-                                "image_url": data['images'][0] if data['images'] else '',
-                                "category": category_obj,
-                            }
+                            defaults=defaults
                         )
 
                         if created:
@@ -429,7 +509,7 @@ class Command(BaseCommand):
                         # Save Images
                         if data['images']:
                             ProductImage.objects.filter(product=product).delete()
-                            for img_url in data['images'][:5]: # max 5 images
+                            for img_url in data['images'][:12]:
                                 ProductImage.objects.create(product=product, image_url=img_url)
 
                         scraped_count += 1

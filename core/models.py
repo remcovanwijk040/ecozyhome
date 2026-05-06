@@ -85,3 +85,16 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.title if self.product else 'Deleted Product'}"
+
+
+class NewsletterSubscriber(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Nieuwsbrief Abonnee'
+        verbose_name_plural = 'Nieuwsbrief Abonnees'
+
+    def __str__(self):
+        return self.email

@@ -3,6 +3,36 @@
 {% block title %}Ecozyhome — Duurzame Producten voor een Groenere Toekomst{% endblock %}
 {% block meta_description %}Ontdek honderden duurzame producten bij Ecozyhome. Van energiebesparende artikelen tot natuurlijke verzorgingsproducten. Bespaar energie, bespaar geld, bespaar de planeet.{% endblock %}
 
+{% block extra_head %}
+<!-- JSON-LD Organization (Google Knowledge Panel) -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Ecozyhome",
+    "url": "https://ecozyhome.nl",
+    "logo": "https://ecozyhome.nl/static/images/logo.png",
+    "description": "Duurzame producten voor een groenere toekomst. Van energiebesparing tot natuurlijke verzorging.",
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "info@ecozyhome.nl",
+        "availableLanguage": "Dutch"
+    }
+}
+</script>
+
+<!-- JSON-LD WebSite (Sitelinks Search Box) -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Ecozyhome",
+    "url": "https://ecozyhome.nl"
+}
+</script>
+{% endblock %}
+
 {% block content %}
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -277,12 +307,18 @@
                 <div class="absolute -bottom-10 -left-10 w-60 h-60 bg-eco-400/20 rounded-full blur-2xl"></div>
             </div>
             <div class="relative text-center max-w-2xl mx-auto">
-                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mb-4">Klaar voor een duurzamere levensstijl?</h2>
-                <p class="text-eco-100/90 text-lg mb-8">Ontdek vandaag nog ons complete assortiment en bespaar op energie, water en meer.</p>
-                <a href="#categorieën" class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-eco-700 bg-white rounded-xl hover:bg-eco-50 transition-all duration-200 shadow-xl shadow-black/10 hover:-translate-y-0.5" id="cta-shop">
-                    Start met Winkelen
-                    <svg class="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
-                </a>
+                <div class="text-4xl mb-4">📬</div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mb-4">Mis geen enkele deal</h2>
+                <p class="text-eco-100/90 text-lg mb-8">Schrijf je in voor onze nieuwsbrief en ontvang als eerste aanbiedingen, nieuwe producten en duurzame tips.</p>
+                <div class="max-w-md mx-auto" id="cta-newsletter-container">
+                    <form hx-post="{% url 'core:newsletter_subscribe' %}" hx-target="#cta-newsletter-container" hx-swap="innerHTML" class="flex flex-col sm:flex-row gap-3">
+                        {% csrf_token %}
+                        <input type="email" name="email" placeholder="Je e-mailadres" required class="flex-1 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 px-5 py-4 text-white placeholder-white/60 focus:bg-white/30 focus:border-white/50 focus:ring-white/30 focus:outline-none text-sm">
+                        <button type="submit" class="flex-shrink-0 rounded-xl bg-white px-8 py-4 text-sm font-bold text-eco-700 hover:bg-eco-50 transition-all duration-200 shadow-lg shadow-black/10 hover:-translate-y-0.5" id="cta-newsletter-btn">
+                            Aanmelden
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

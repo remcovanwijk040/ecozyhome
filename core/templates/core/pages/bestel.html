@@ -1,87 +1,70 @@
 {% extends 'core/base.html' %}
+{% block title %}Verzending & Bestelinformatie — Ecozyhome{% endblock %}
+{% block meta_description %}Alles over bestellen bij Ecozyhome: verzendkosten, levertijden en betaalmethoden.{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12 prose prose-green">
-<div class="container userInfo">
-<h1 class="ebs-content-header">
+<div class="bg-white">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+<nav class="text-sm text-gray-400 mb-6"><a href="/" class="hover:text-eco-600">Home</a> <span class="mx-2">›</span> <span class="text-gray-600 font-medium">Verzending & Bestelinformatie</span></nav>
+<h1 class="font-display text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Verzending & Bestelinformatie</h1>
+<p class="mt-3 text-gray-500 text-lg">Alles wat je moet weten over bestellen, bezorging en betalen bij Ecozyhome.</p>
 
-            Bestelinformatie
+<div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="rounded-2xl bg-eco-50 border border-eco-100 p-5 text-center"><div class="text-2xl mb-2">🚚</div><div class="text-sm font-bold text-gray-900">Levertijd</div><div class="text-sm text-gray-500 mt-1">1–3 werkdagen</div></div>
+<div class="rounded-2xl bg-eco-50 border border-eco-100 p-5 text-center"><div class="text-2xl mb-2">💰</div><div class="text-sm font-bold text-gray-900">Verzendkosten</div><div class="text-sm text-gray-500 mt-1">€ 5,95 (NL)</div></div>
+<div class="rounded-2xl bg-eco-50 border border-eco-100 p-5 text-center"><div class="text-2xl mb-2">🛒</div><div class="text-sm font-bold text-gray-900">Min. bestelbedrag</div><div class="text-sm text-gray-500 mt-1">€ 40,00</div></div>
+</div>
 
-        </h1>
-<br/>
-<h2>Bezorgkosten Nederland</h2>
-<ul>
-<li>Bezorgkosten: € 7,50 excl. btw </li>
-<li>Verzendkosten bij volume orders: € 45,00 excl. btw (dit wordt aangegeven in de winkelmand)</li>
-<li>Volume zending worden gratis verzonden vanaf € 950,00 excl. btw</li>
-<li>Minimaal bestelbedrag: € 40,00</li>
+<div class="mt-12 space-y-10">
+<section>
+<h2 class="font-display text-xl font-bold text-gray-900 mb-3 flex items-center gap-2"><span class="text-eco-600">🛒</span> Bestellen</h2>
+<p class="text-gray-600 leading-relaxed mb-3">Bestellen bij Ecozyhome is eenvoudig. Voeg je favoriete producten toe aan de winkelwagen, vul je gegevens in bij de checkout en rond je betaling af. Je ontvangt direct een orderbevestiging per e-mail.</p>
+<ul class="space-y-2">
+<li class="flex items-start gap-3 text-gray-600"><svg class="w-5 h-5 text-eco-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Het <strong class="text-gray-900">minimale bestelbedrag</strong> is € 40,00.</li>
+<li class="flex items-start gap-3 text-gray-600"><svg class="w-5 h-5 text-eco-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Alle prijzen op de website zijn <strong class="text-gray-900">inclusief BTW</strong>.</li>
 </ul>
-<p> </p>
-<h2>Bezorgkosten België</h2>
-<ul>
-<li>Bezorgkosten: € 8,50</li>
-<li></li>
-<li>Verzendkosten bij volume orders: € 65,00 excl. btw (dit wordt aangegeven in de winkelmand)</li>
-<li>Volume zending worden gratis verzonden vanaf € 1250,00 excl. btw</li>
-<li>Minimaal bestelbedrag € 40,00</li>
-</ul>
-<p> </p>
-<h2>Levertijd</h2>
-<ul>
-<li>PostNL verzendbare bestellingen 1-3 werkdagen.</li>
-<li>Volume bestellingen (pallet vervoer). Heeft een levertijd van 2-4 werkdagen.</li>
-<li>Wanneer de bestelling aan het eind van de dag aangeboden wordt bij de vervoerder, ontvangt u hierover bericht. </li>
-</ul>
-<p> </p>
-<h2>Productoverzicht</h2>
-<ul>
-<li>Sommige producten zijn alleen per doos te bestellen. Dit staat vermeld in de artikelregel. De prijs staat vermeld per stuk.</li>
-</ul>
-<h2> </h2>
-<h2>Aanvullende verkoopvoorwaarden</h2>
-<ul>
-<li>Producten met aanvullende verkoopvoorwaarden zijn niet toegestaan om te verkopen via derden, zoals de platformen Bol.com of Amazon. </li>
-<li>Let op! Wij doen geen dropshipment bestellingen voor bedrijven die verkopen op marketplaces zoals Bol.com.</li>
-</ul>
-<h2><br/>
-<strong>Verkeerd product ontvangen?</strong> </h2>
-<ul>
-<li>Heb je een product niet ontvangen of verkeerd ontvangen? Graag ontvangen we binnen 72 uur een melding. In overleg bepalen we een passende oplossing. </li>
-</ul>
-<p> </p>
-<p>Let op! wanneer je gebruik maakt van het atwoordnummer, worden er 7,50 euro kosten in rekening gebracht. Dit alleen het geval, wanneer het gaat om een annulering. Bij schade of garantie zijn de kosten voor Ecozyhome.</p>
-<h2> </h2>
-<h2>Facturatie</h2>
-<ul>
-<li>Facturen worden per e-mail verzonden, evenals herinneringen en aanmaningen</li>
-<li>Wanneer er een factuur langer dan 50 dagen openstaat, wordt deze overgedragen aan de incasso. Eventuele bijkomende worden dan doorberekend. We zullen altijd eerst telefonisch contact opnemen, om tot een oplossing te komen. </li>
-</ul>
-<p><strong>Nieuwe klanten</strong></p>
-<ul>
-<li>De eerste bestelling is altijd op vooruitbetaling (pro forma)</li>
-<li>Bij vervolg bestellingen is de betalingstermijn: <strong>21 dagen</strong></li>
-<li>Het maximale krediet is € 750 euro. Wanneer de openstaande posten hoger zijn, dienen deze eerst voldaan te worden voordat een nieuwe bestelling in behandeling wordt genomen.</li>
-</ul>
-<p><strong>Vaste klanten</strong></p>
-<ul>
-<li>Bij vaste klanten kan het krediet worden verhoogd. Dit is afhankelijk van de regelmaat van bestellen, het gemiddelde order bedrag en een betrouwbaar betaalgedrag. </li>
-</ul>
-<h2> </h2>
-<h2>Leveringsstop</h2>
-<ul>
-<li>Wanneer bij openstaande facturen de betalingstermijn is verstreken, behoud Ecozyhome het recht een leveringsstop in te stellen. Nieuwe orders worden pas verzonden als de openstaande posten zijn voldaan.</li>
-</ul>
-<p> </p>
-<h2>Producten met bedrukking</h2>
-<p><strong>Bestellingen van producten met bedrukking</strong></p>
-<ul>
-<li>Het totale bedrag moet zijn voldaan, voordat de levering plaatsvind (proforma-factuur)</li>
-<li>Levertijd start vanaf het moment dat de betaling is ontvangen</li>
-<li>Let op! Deze producten kunnen niet retour na levering!</li>
-<li>Akkoord van het bedrukken middels een digitale proefdruk</li>
-</ul>
-<p><a href="/info-Bedrukking-250">Klik hier voor meer informatie over het bedrukken van producten</a></p>
-<p> </p>
-<br/><br/>
+</section>
+
+<section>
+<h2 class="font-display text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"><span class="text-eco-600">🚚</span> Verzending</h2>
+<div class="rounded-xl border border-gray-100 p-5 mb-4">
+<h3 class="text-base font-bold text-gray-900 mb-3">🇳🇱 Nederland</h3>
+<div class="space-y-2">
+<div class="flex justify-between text-sm"><span class="text-gray-500">Standaard verzendkosten</span><span class="font-semibold text-gray-900">€ 5,95</span></div>
+<div class="flex justify-between text-sm"><span class="text-gray-500">Gratis verzending vanaf</span><span class="font-semibold text-eco-700">€ 75,00</span></div>
+<div class="flex justify-between text-sm"><span class="text-gray-500">Levertijd</span><span class="font-semibold text-gray-900">1–3 werkdagen</span></div>
+</div>
+</div>
+<div class="rounded-xl border border-gray-100 p-5 mb-4">
+<h3 class="text-base font-bold text-gray-900 mb-3">🇧🇪 België</h3>
+<div class="space-y-2">
+<div class="flex justify-between text-sm"><span class="text-gray-500">Verzendkosten</span><span class="font-semibold text-gray-900">€ 8,95</span></div>
+<div class="flex justify-between text-sm"><span class="text-gray-500">Levertijd</span><span class="font-semibold text-gray-900">2–4 werkdagen</span></div>
+</div>
+</div>
+<p class="text-gray-500 text-sm">Zodra je bestelling is verzonden, ontvang je een e-mail met een track & trace code.</p>
+</section>
+
+<section>
+<h2 class="font-display text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"><span class="text-eco-600">💳</span> Betaalmethoden</h2>
+<p class="text-gray-600 mb-4">Wij bieden veilige betaling via <strong class="text-gray-900">Stripe</strong>.</p>
+<div class="grid grid-cols-3 gap-3">
+<div class="rounded-xl border border-gray-100 p-4 text-center"><div class="text-sm font-semibold text-gray-900">iDEAL</div></div>
+<div class="rounded-xl border border-gray-100 p-4 text-center"><div class="text-sm font-semibold text-gray-900">Creditcard</div><div class="text-xs text-gray-400 mt-0.5">Visa, Mastercard</div></div>
+<div class="rounded-xl border border-gray-100 p-4 text-center"><div class="text-sm font-semibold text-gray-900">Bancontact</div><div class="text-xs text-gray-400 mt-0.5">België</div></div>
+</div>
+</section>
+
+<section class="rounded-2xl bg-amber-50 border border-amber-100 p-6">
+<h2 class="text-lg font-bold text-gray-900 mb-2">📦 Verkeerd product of beschadiging?</h2>
+<p class="text-gray-600 text-sm">Neem binnen 48 uur contact op via <a href="mailto:support@ecozyhome.nl" class="text-eco-600 font-medium hover:underline">support@ecozyhome.nl</a>. Lees meer op onze <a href="{% url 'core:info_retour' %}" class="text-eco-600 font-medium hover:underline">retourpagina</a>.</p>
+</section>
+
+<section class="pt-6 border-t border-gray-100">
+<h2 class="font-display text-xl font-bold text-gray-900 mb-3">Nog vragen?</h2>
+<p class="text-gray-600">Neem contact op via het <a href="/#contact" class="text-eco-600 font-medium hover:underline">contactformulier</a> of mail naar <a href="mailto:support@ecozyhome.nl" class="text-eco-600 font-medium hover:underline">support@ecozyhome.nl</a>.</p>
+</section>
+</div>
 </div>
 </div>
 {% endblock %}
