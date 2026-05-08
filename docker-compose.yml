@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite:////app/db/db.sqlite3
+    volumes:
+      # Hier mounten we de map waar de SQLite database in staat, 
+      # zodat data persisteert bij het restarten van de container.
+      - sqlite_data:/app/db
+      # Als je media uploads krijgt, wil je ook een volume voor /app/media
+
+volumes:
+  sqlite_data:
